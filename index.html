@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mind Filter AI - Thought Synthesis Platform</title>
+    <!-- Tailwind CSS for sleek UI styling -->
+    <script src="https://tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans h-screen flex flex-col overflow-hidden">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">🧠 Mind Filter AI</span>
+            <span class="text-xs bg-slate-800 border border-slate-700 text-slate-400 px-2 py-0.5 rounded">Beta PoC</span>
+        </div>
+        <!-- GLOBAL ENERGY BAR -->
+        <div class="flex items-center space-x-4">
+            <div class="text-right">
+                <p class="text-xs text-slate-400">Global Free Thinking Power</p>
+                <div class="w-48 bg-slate-800 h-2 rounded-full mt-1 overflow-hidden border border-slate-700">
+                    <div class="bg-gradient-to-r from-blue-500 to-indigo-500 h-full w-[85%]"></div>
+                </div>
+            </div>
+            <span class="text-xs text-slate-300 font-mono bg-slate-800 px-2 py-1 rounded border border-slate-700">85% Left</span>
+        </div>
+    </header>
+
+    <!-- MAIN TWO-COLUMN LAYOUT -->
+    <main class="flex-1 flex overflow-hidden">
+        
+        <!-- LEFT COLUMN: THE CHAT GUN & INITIALIZATION WINDOW -->
+        <section class="w-1/2 border-r border-slate-800 flex flex-col bg-slate-950">
+            <!-- Session Status Headers -->
+            <div class="p-4 bg-slate-900/50 border-b border-slate-800 flex space-x-2">
+                <div class="bg-slate-800 border border-slate-700 rounded p-2 text-xs flex-1">
+                    <span class="text-slate-400 block font-semibold uppercase tracking-wider text-[10px]">Active Intention</span>
+                    <span id="active-intent" class="text-slate-200 italic">Waiting for input...</span>
+                </div>
+                <div class="bg-slate-800 border border-slate-700 rounded p-2 text-xs flex-1">
+                    <span class="text-slate-400 block font-semibold uppercase tracking-wider text-[10px]">AI Persona</span>
+                    <span id="active-persona" class="text-slate-200">Not selected</span>
+                </div>
+            </div>
+
+            <!-- Chat History Area -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-4" id="chat-history">
+                <!-- AI Welcome Message -->
+                <div class="flex items-start space-x-3 max-w-[85%]">
+                    <div class="bg-blue-600/20 text-blue-400 p-2 rounded-lg font-bold text-sm border border-blue-500/30">AI</div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-none p-4 shadow-sm">
+                        <p class="text-sm leading-relaxed text-slate-200">
+                            Hello! I am your AI Research Partner. I am here to help filter your thoughts, handle friction, and prepare your logic for high-stakes meetings. 
+                            <br/><br/>
+                            Before we begin, <span class="text-blue-400 font-medium">how should I address you?</span> Please type your name below.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Box Area -->
+            <div class="p-4 bg-slate-900 border-t border-slate-800">
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="user-input" placeholder="Type your response here..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition text-slate-100 placeholder-slate-500" />
+                    <button id="send-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm px-5 py-3 rounded-xl transition shadow-md shadow-blue-900/20">
+                        Send
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN: THE EXTRACTION BOXES & FINAL OUTPUT -->
+        <section class="w-1/2 flex flex-col bg-slate-900/30 overflow-y-auto p-6 space-y-6">
+            
+            <!-- BOX A: IDEA STORAGE BOX -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-sm font-bold tracking-wide uppercase text-blue-400 flex items-center space-x-2">
+                        <span>📦</span> <span>Idea Storage Box</span>
+                    </h2>
+                    <span class="text-[10px] bg-blue-950 text-blue-400 px-2 py-0.5 rounded border border-blue-900/50">Human Approved</span>
+                </div>
+                <div class="space-y-2 text-sm text-slate-400 italic" id="idea-box-content">
+                    No approved ideas stored yet. Engage in dialogue to extract structured concepts.
+                </div>
+            </div>
+
+            <!-- BOX B: QUESTION & BLOCKER BOX -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-sm font-bold tracking-wide uppercase text-amber-400 flex items-center space-x-2">
+                        <span>❓</span> <span>Question & Blocker Box</span>
+                    </h2>
+                    <span class="text-[10px] bg-amber-950 text-amber-400 px-2 py-0.5 rounded border border-amber-900/50">Friction Captured</span>
+                </div>
+                <div class="space-y-2 text-sm text-slate-400 italic" id="blocker-box-content">
+                    No captured blockers yet. When thoughts stagnate, blockers will gracefully anchor here.
+                </div>
+            </div>
+
+            <!-- BOX C: FINAL OUTPUT WINDOW -->
+            <div class="flex-1 bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col min-h-[300px]">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-sm font-bold tracking-wide uppercase text-indigo-400 flex items-center space-x-2">
+                        <span>🚀</span> <span>Final Output Window</span>
+                    </h2>
+                    <!-- Action Buttons -->
+                    <div class="flex space-x-2">
+                        <button class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition">Copy</button>
+                        <button class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition">Download PDF</button>
+                    </div>
+                </div>
+                <div class="flex-1 flex items-center justify-center border border-dashed border-slate-800 rounded-xl p-4 text-center text-sm text-slate-500 italic" id="output-content">
+                    Final synthesis, markdown slideshows, or Mermaid logic diagrams will generate here upon your strategic command.
+                </div>
+                
+                <!-- CRITICAL STAMPED DISCLAIMER -->
+                <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-500 leading-normal">
+                    <span class="text-slate-400 font-semibold">Disclaimer:</span> This AI is your dialectic brainstorming partner, not a flawless oracle. Models can hallucinate. You are the sole reviewer, owner, and driving mind of all strategic decisions.
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-950 border-t border-slate-900 px-6 py-3 text-center text-xs text-slate-600">
+        Created by <span class="text-slate-400 font-medium">You</span> & Developed in Collaboration with an <span class="text-slate-500 italic">AI Research Partner</span>. Built on human insight, polished through dialectic thinking.
+    </footer>
+
+</body>
+</html>
