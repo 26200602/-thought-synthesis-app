@@ -1,359 +1,285 @@
-// chat-ai.js
-var step = 0;
-var userName = '';
-var intention = '';
-var persona = '';
-var mode = '';
-var pendingIdea = '';
-var pendingBlocker = '';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mind Filter AI - Thought Synthesis Platform</title>
+    <script src="https://tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cloudflare.com">
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans h-screen flex flex-col overflow-hidden">
 
-var chatHistory = document.getElementById('chat-history');
-var userInput = document.getElementById('user-input');
-var sendBtn = document.getElementById('send-btn');
-var activeIntent = document.getElementById('active-intent');
-var activePersona = document.getElementById('active-persona');
-var ideaBoxContent = document.getElementById('idea-box-content');
-var blockerBoxContent = document.getElementById('blocker-box-content');
-var outputContent = document.getElementById('output-content');
-var energyBar = document.getElementById('energy-bar');
-var energyText = document.getElementById('energy-text');
+    <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center z-10">
+        <div class="flex items-center space-x-3">
+            <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">🧠 Mind Filter AI</span>
+            <span class="text-xs bg-slate-800 border border-slate-700 text-slate-400 px-2 py-0.5 rounded">Beta PoC</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div class="text-right">
+                <p class="text-[11px] text-slate-400">Global Free Thinking Power</p>
+                <div class="w-48 bg-slate-800 h-2 rounded-full mt-1 overflow-hidden border border-slate-700">
+                    <div id="energy-bar" class="bg-gradient-to-r from-blue-500 to-indigo-500 h-full w-[85%] transition-all duration-500"></div>
+                </div>
+            </div>
+            <span id="energy-text" class="text-xs text-slate-300 font-mono bg-slate-800 px-2 py-1 rounded border border-slate-700">85% Left</span>
+        </div>
+    </header>
 
-function safeElementCheck() {
-    // 如果任何必要元素唔存在，記錄並停止初始化互動（避免 runtime error）
-    var required = [
-        { el: chatHistory, name: 'chat-history' },
-        { el: userInput, name: 'user-input' },
-        { el: sendBtn, name: 'send-btn' },
-        { el: outputContent, name: 'output-content' }
-    ];
-    for (var i = 0; i < required.length; i++) {
-        if (!required[i].el) {
-            console.warn('Missing DOM element:', required[i].name);
-            return false;
+    <main class="flex-1 flex overflow-hidden">
+        <section class="w-1/2 border-r border-slate-800 flex flex-col bg-slate-950">
+            <div class="p-4 bg-slate-900/50 border-b border-slate-800 flex space-x-2">
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 flex-1">
+                    <span class="text-slate-500 block font-bold uppercase tracking-wider text-[9px] mb-0.5"><i class="fa-solid fa-bullseye text-blue-400 mr-1"></i>Active Intention</span>
+                    <span id="active-intent" class="text-xs text-slate-400 italic">Awaiting definition...</span>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 flex-1">
+                    <span class="text-slate-500 block font-bold uppercase tracking-wider text-[9px] mb-0.5"><i class="fa-solid fa-user-ninja text-indigo-400 mr-1"></i>AI Persona</span>
+                    <span id="active-persona" class="text-xs text-slate-400 italic">Not selected</span>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 space-y-4" id="chat-history"></div>
+
+            <div class="p-4 bg-slate-900 border-t border-slate-800">
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="user-input" placeholder="Type your response here..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition text-slate-100 placeholder-slate-500" />
+                    <button id="send-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm px-5 py-3 rounded-xl transition shadow-md flex items-center space-x-2">
+                        <span>Send</span> <i class="fa-solid fa-paper-plane text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="w-1/2 flex flex-col bg-slate-900/10 overflow-y-auto p-6 space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-xs font-bold tracking-wide uppercase text-blue-400 flex items-center space-x-2">
+                        <span>📦</span> <span>Idea Storage Box</span>
+                    </h2>
+                    <span class="text-[9px] bg-blue-950 text-blue-400 px-2 py-0.5 rounded border border-blue-900/50 uppercase tracking-wider font-semibold">Human Approved</span>
+                </div>
+                <div class="text-sm text-slate-500 italic space-y-3" id="idea-box-content">
+                    No approved ideas stored yet. Engage in dialogue to extract structured concepts.
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-xs font-bold tracking-wide uppercase text-amber-400 flex items-center space-x-2">
+                        <span>❓</span> <span>Question & Blocker Box</span>
+                    </h2>
+                    <span class="text-[9px] bg-amber-950 text-amber-400 px-2 py-0.5 rounded border border-amber-900/50 uppercase tracking-wider font-semibold">Friction Captured</span>
+                </div>
+                <div class="text-sm text-slate-500 italic space-y-3" id="blocker-box-content">
+                    No captured blockers yet. When thoughts stagnate, blockers will gracefully anchor here.
+                </div>
+            </div>
+
+            <div class="flex-1 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col min-h-[350px]">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xs font-bold tracking-wide uppercase text-indigo-400 flex items-center space-x-2">
+                        <span>🚀</span> <span>Final Output Window</span>
+                    </h2>
+                    <div class="flex space-x-2">
+                        <button id="copy-btn" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center space-x-1">
+                            <i class="fa-regular fa-copy"></i> <span>Copy</span>
+                        </button>
+                        <button id="download-btn" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center space-x-1">
+                            <i class="fa-regular fa-file-pdf"></i> <span>Download PDF</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex-1 flex items-center justify-center border border-dashed border-slate-800 rounded-xl p-4 text-center text-sm text-slate-500 italic bg-slate-950/40" id="output-content">
+                    Final synthesis, markdown slideshows, or Mermaid logic diagrams will generate here upon your strategic command.
+                </div>
+                
+                <div class="mt-4 pt-3 border-t border-slate-800 text-[10px] text-slate-500 leading-normal flex items-start space-x-2">
+                    <i class="fa-solid fa-shield-halved text-slate-600 mt-0.5 text-xs"></i>
+                    <div>
+                        <span class="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Disclaimer:</span> This AI is your dialectic brainstorming partner, not a flawless oracle. Models can hallucinate. You are the sole reviewer, owner, and driving mind of all strategic decisions.
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-950 border-t border-slate-900 px-6 py-3 text-center text-xs text-slate-600 tracking-wide">
+        Created by <span class="text-slate-400 font-semibold">MSK</span> & Developed in Collaboration with an <span class="text-slate-400 italic font-medium">AI Research Partner</span>. Built on human insight, polished through dialectic thinking.
+    </footer>
+
+    <script>
+        var step = 0; var userName = ''; var intention = ''; var persona = ''; var mode = ''; var pendingIdea = ''; var pendingBlocker = '';
+        var chatHistory = document.getElementById('chat-history');
+        var userInput = document.getElementById('user-input');
+        var sendBtn = document.getElementById('send-btn');
+        var activeIntent = document.getElementById('active-intent');
+        var activePersona = document.getElementById('active-persona');
+        var ideaBoxContent = document.getElementById('idea-box-content');
+        var blockerBoxContent = document.getElementById('blocker-box-content');
+        var outputContent = document.getElementById('output-content');
+        var energyBar = document.getElementById('energy-bar');
+        var energyText = document.getElementById('energy-text');
+
+        function appendAiMessage(text) {
+            var div = document.createElement('div');
+            div.className = 'flex items-start space-x-3 max-w-[85%] animate-fade-in';
+            div.innerHTML = '<div class="bg-blue-600/20 text-blue-400 p-2 rounded-xl font-bold text-xs border border-blue-500/20 shadow-sm">AI</div><div class="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-none p-4 shadow-md text-slate-200 text-sm leading-relaxed whitespace-pre-wrap"></div>';
+            div.querySelectorAll('div')[1].innerText = text;
+            chatHistory.appendChild(div);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
         }
-    }
-    return true;
-}
 
-function appendAiMessage(text) {
-    if (!chatHistory) return;
-    var div = document.createElement('div');
-    div.className = 'flex items-start space-x-3 max-w-[85%] animate-fade-in';
-
-    var avatar = document.createElement('div');
-    avatar.className = 'bg-blue-600/20 text-blue-400 p-2 rounded-xl font-bold text-xs border border-blue-500/20';
-    avatar.innerText = 'AI';
-
-    var contentBox = document.createElement('div');
-    contentBox.className = 'bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-none p-4 shadow-md text-slate-200 text-sm leading-relaxed whitespace-pre-wrap';
-    contentBox.innerText = text;
-
-    div.appendChild(avatar);
-    div.appendChild(contentBox);
-    chatHistory.appendChild(div);
-    chatHistory.scrollTop = chatHistory.scrollHeight;
-}
-
-function appendUserMessage(text) {
-    if (!chatHistory) return;
-    var div = document.createElement('div');
-    div.className = 'flex items-start space-x-3 max-w-[85%] ml-auto justify-end animate-fade-in';
-
-    var contentBox = document.createElement('div');
-    contentBox.className = 'bg-slate-800 border border-slate-700 rounded-2xl rounded-tr-none p-4 shadow-md text-slate-200 text-sm leading-relaxed';
-    contentBox.innerText = text;
-
-    var avatar = document.createElement('div');
-    avatar.className = 'bg-slate-700 text-slate-200 p-2 rounded-xl font-bold text-xs border border-slate-600';
-    avatar.innerText = 'ME';
-
-    div.appendChild(contentBox);
-    div.appendChild(avatar);
-    chatHistory.appendChild(div);
-    chatHistory.scrollTop = chatHistory.scrollHeight;
-}
-
-function handleDialogue(input) {
-    if (!input) return;
-    if (step === 0) {
-        userName = input.trim() || 'User';
-        step = 1;
-        appendAiMessage('Nice to meet you, ' + userName + '!\n\nLet\'s cut through the noise. What is your Intention today? What business pain point or product idea are we trying to refine? (e.g., "I want to automate our VIP retail customer routing")');
-        return;
-    }
-    if (step === 1) {
-        intention = input.trim();
-        if (activeIntent) {
-            activeIntent.innerText = intention;
-            activeIntent.classList.remove('italic', 'text-slate-400');
-            activeIntent.classList.add('text-blue-400', 'font-medium');
+        function appendUserMessage(text) {
+            var div = document.createElement('div');
+            div.className = 'flex items-start space-x-3 max-w-[85%] ml-auto justify-end animate-fade-in';
+            div.innerHTML = '<div class="bg-slate-800 border border-slate-700 rounded-2xl rounded-tr-none p-4 shadow-md text-slate-200 text-sm leading-relaxed"></div><div class="bg-slate-700 text-slate-200 p-2 rounded-xl font-bold text-xs border border-slate-600">ME</div>';
+            div.querySelectorAll('div')[0].innerText = text;
+            chatHistory.appendChild(div);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
         }
-        step = 2;
-        appendAiMessage('Got it. Intent locked as: "' + intention + '"\n\nNext, what persona should I adopt to test this idea? Choose your opponent:\n\n1. [The Tough Boss] (Will grill you relentlessly on ROI and business value)\n2. [The Realistic Engineer] (Will challenge your data infrastructure and scalability)\n3. [The Frontline Manager] (Will test how this impacts real daily operations)');
-        return;
-    }
-    if (step === 2) {
-        var choices = { '1': 'Tough Boss', '2': 'Realistic Engineer', '3': 'Frontline Manager' };
-        persona = choices[input.trim()] || input.trim();
-        if (activePersona) {
-            activePersona.innerText = persona;
-            activePersona.classList.remove('italic', 'text-slate-400');
-            activePersona.classList.add('text-indigo-400', 'font-medium');
-        }
-        step = 3;
-        appendAiMessage('Understood. I am now acting as your [' + persona + '].\n\nFinal setting: What Thinking Mode do you require?\n\n1. [Concise Mode] (Short answers, high efficiency, lets you speak more)\n2. [Deep Dialectic Mode] (Deep critical analysis, complex questioning, treats you like an executive)');
-        return;
-    }
-    if (step === 3) {
-        mode = input.trim() === '1' ? 'Concise' : 'Deep Dialectic';
-        step = 4;
-        if (persona.includes('Engineer')) {
-            appendAiMessage('⚡ [System Notification: Session Initialized in ' + mode + ' Mode]\n\nAlright ' + userName + ', let\'s talk architecture. You want to execute: "' + intention + '". \n\nMy first question to you: Do we actually have clean, structured data for this? If we feed dirty CRM logs or raw PDFs into an LLM right now, it will throw a wall of hallucinations. Do you have an established data pipeline, or are we building on a mess?');
-        } else if (persona.includes('Boss')) {
-            appendAiMessage('⚡ [System Notification: Session Initialized in ' + mode + ' Mode]\n\nOkay ' + userName + ', let\'s look at the numbers. To build "' + intention + '", we are going to burn cash on API tokens and engineering hours. \n\nTell me: What is the exact ROI here? Are we trying to cut headcounts, speed up conversion rates, or is this just a vanity project to show off to the board? Be brutally honest.');
-        } else {
-            appendAiMessage('⚡ [System Notification: Session Initialized in ' + mode + ' Mode]\n\nLet\'s get real, ' + userName + '. Frontline staff hate new software. For "' + intention + '", if this AI takes an extra 3 steps to use, the team will sabotage it or bypass it completely. \n\nTell me: How exactly does a retail rep use this in their busiest hour? What is the exact workflow friction we are solving?');
-        }
-        setTimeout(function() {
-            triggerIdeaSuggestion('Establish hardcoded filter criteria at API gateway before routing to core model.');
-        }, 1500);
-        return;
-    }
-    if (step >= 4) {
-        var lowInput = input.toLowerCase();
-        if ((lowInput.includes('yes') || lowInput.includes('store') || lowInput.includes('save')) && pendingIdea) {
-            commitPendingIdea();
-            return;
-        }
-        if ((lowInput.includes('yes') || lowInput.includes('capture') || lowInput.includes('anchor')) && pendingBlocker) {
-            commitPendingBlocker();
-            return;
-        }
-        if (step === 4) {
-            step = 5;
-            updateEnergy(70, '70% Left');
-            appendAiMessage('That\'s a fair point, but it feels incomplete. If we don\'t lock this into a rigid Finite State Machine (FSM) external code layer, the AI prompt will drift during edge cases.\n\nShould we restrict the tool access so it only outputs pure JSON, or do you want to give the model full conversational freedom?');
-            setTimeout(function() {
-                triggerBlockerSuggestion('CRITICAL BLOCKER: Core CRM architecture lacks synchronized webhooks. Real-time routing currently impossible.');
-            }, 1200);
-        } else if (step === 5) {
-            step = 6;
-            updateEnergy(50, '50% Left');
-            appendAiMessage('Excellent choice. Locking it down via Hard Code protects the brand image. \n\nI think we have enough strategic weight now. Type "Final" or "Generate" anytime, and I will compile our architectural logic flow and defense brief inside the Final Output Window.');
-        } else if (lowInput.includes('final') || lowInput.includes('generate')) {
-            compileFinalOutput();
-        } else {
-            appendAiMessage('Understood. Let\'s dig deeper into that logic. How do you plan to handle liability if the system misinterprets a tier-1 customer\'s intent?');
-        }
-    }
-}
 
-function triggerIdeaSuggestion(ideaText) {
-    pendingIdea = ideaText;
-    if (!chatHistory) return;
-    var div = document.createElement('div');
-    div.className = 'bg-blue-950/40 border border-blue-800/60 rounded-xl p-3 mt-2 text-xs space-y-2 animate-fade-in';
-
-    var title = document.createElement('p');
-    title.className = 'text-blue-300 font-medium';
-    title.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles mr-1"></i> [AI Insight Extraction] Would you like to store this concept into your Idea Storage Box?';
-
-    var textP = document.createElement('p');
-    textP.className = 'text-slate-300 italic';
-    textP.innerText = '"' + ideaText + '"';
-
-    var btnGroup = document.createElement('div');
-    btnGroup.className = 'flex space-x-2 pt-1';
-    // 使用安全的 onclick handler
-    var yesBtn = document.createElement('button');
-    yesBtn.className = 'bg-blue-600 text-white px-3 py-1 rounded font-medium';
-    yesBtn.innerText = 'Yes, Store It';
-    yesBtn.addEventListener('click', commitPendingIdea);
-
-    var noBtn = document.createElement('button');
-    noBtn.className = 'text-slate-500 px-2 py-1';
-    noBtn.innerText = 'Discard';
-    noBtn.addEventListener('click', rejectPendingIdea);
-
-    btnGroup.appendChild(yesBtn);
-    btnGroup.appendChild(noBtn);
-
-    div.appendChild(title);
-    div.appendChild(textP);
-    div.appendChild(btnGroup);
-    chatHistory.appendChild(div);
-    chatHistory.scrollTop = chatHistory.scrollHeight;
-}
-
-function commitPendingIdea() {
-    if (!pendingIdea) return;
-    if (!ideaBoxContent) return;
-    if (ideaBoxContent.innerText.includes('No approved ideas')) { ideaBoxContent.innerHTML = ''; }
-    var item = document.createElement('div');
-    item.className = 'bg-slate-950 border border-slate-800 rounded-xl p-3 flex justify-between items-start text-xs text-slate-200 font-sans shadow-inner animate-scale-up';
-
-    var p = document.createElement('p');
-    p.className = 'leading-relaxed';
-    p.innerHTML = '<i class="fa-solid fa-check text-blue-500 mr-2"></i>';
-    var textSpan = document.createElement('span');
-    textSpan.innerText = pendingIdea;
-    p.appendChild(textSpan);
-
-    var btn = document.createElement('button');
-    btn.className = 'text-slate-600 hover:text-blue-400 ml-2';
-    btn.innerHTML = '<i class="fa-solid fa-share-nodes"></i>';
-    // 可加入分享或複製功能，暫時只做視覺按鈕
-
-    item.appendChild(p);
-    item.appendChild(btn);
-    ideaBoxContent.appendChild(item);
-    pendingIdea = '';
-    appendAiMessage('🔒 Concept successfully locked into your Idea Storage Box.');
-}
-
-function rejectPendingIdea() {
-    pendingIdea = '';
-    appendAiMessage('Discarded. Let\'s keep refining.');
-}
-
-function triggerBlockerSuggestion(blockerText) {
-    pendingBlocker = blockerText;
-    if (!chatHistory) return;
-    var div = document.createElement('div');
-    div.className = 'bg-amber-950/40 border border-amber-800/60 rounded-xl p-3 mt-2 text-xs space-y-2 animate-fade-in';
-
-    var title = document.createElement('p');
-    title.className = 'text-amber-400 font-medium';
-    title.innerHTML = ' <strong>[Friction Detected]</strong> You seem to be hitting a wall here. Shall we anchor this Blocker into your Question Box?';
-
-    var textP = document.createElement('p');
-    textP.className = 'text-slate-300 italic';
-    textP.innerText = '"' + blockerText + '"';
-
-    var btnGroup = document.createElement('div');
-    btnGroup.className = 'flex space-x-2 pt-1';
-
-    var yesBtn = document.createElement('button');
-    yesBtn.className = 'bg-amber-600 text-white px-3 py-1 rounded font-medium';
-    yesBtn.innerText = 'Yes, Capture Blocker';
-    yesBtn.addEventListener('click', commitPendingBlocker);
-
-    var ignoreBtn = document.createElement('button');
-    ignoreBtn.className = 'text-slate-500 px-2 py-1';
-    ignoreBtn.innerText = 'Ignore';
-    ignoreBtn.addEventListener('click', rejectPendingBlocker);
-
-    btnGroup.appendChild(yesBtn);
-    btnGroup.appendChild(ignoreBtn);
-
-    div.appendChild(title);
-    div.appendChild(textP);
-    div.appendChild(btnGroup);
-    chatHistory.appendChild(div);
-    chatHistory.scrollTop = chatHistory.scrollHeight;
-}
-
-function commitPendingBlocker() {
-    if (!pendingBlocker) return;
-    if (!blockerBoxContent) return;
-    if (blockerBoxContent.innerText.includes('No captured blockers')) { blockerBoxContent.innerHTML = ''; }
-    var item = document.createElement('div');
-    item.className = 'bg-slate-950 border border-slate-800 rounded-xl p-3 flex justify-between items-start text-xs text-slate-200 font-sans shadow-inner animate-scale-up';
-
-    var p = document.createElement('p');
-    p.className = 'leading-relaxed';
-    p.innerHTML = '<i class="fa-solid fa-exclamation-triangle text-amber-400 mr-2"></i>';
-    var textSpan = document.createElement('span');
-    textSpan.innerText = pendingBlocker;
-    p.appendChild(textSpan);
-
-    var btn = document.createElement('button');
-    btn.className = 'text-slate-600 hover:text-amber-400 ml-2';
-    btn.innerHTML = '<i class="fa-solid fa-link"></i>';
-
-    item.appendChild(p);
-    item.appendChild(btn);
-    blockerBoxContent.appendChild(item);
-    pendingBlocker = '';
-    appendAiMessage('⚠️ Friction node safely anchored inside your Question & Blocker Box.');
-}
-
-function rejectPendingBlocker() {
-    pendingBlocker = '';
-    appendAiMessage('Understood. Overriding friction node, continuing deep dive.');
-}
-
-function compileFinalOutput() {
-    if (!outputContent) return;
-    var lines = [];
-    lines.push('// PRE-MEETING STRATEGIC BRIEF GENERATED');
-    lines.push('[PROJECT INTENT] ' + intention);
-    lines.push('[AI PERSONA REVIEWER] ' + persona + ' (' + mode + ' Mode)');
-    lines.push('');
-    lines.push('■ EXECUTIVE PRESENTATION BRIEF (SLIDE SCRIPTS)');
-    lines.push('Slide 1: The Core Target');
-    lines.push('Deploy structured AI filtering to streamline "' + intention + '" without expanding human headcount costs.');
-    lines.push('Slide 2: Architectural Defense Line');
-    lines.push('Implement strict API Token gateway guardrails. Force JSON output structures to block model hallucination and protect Premier Retail brand image.');
-    lines.push('Slide 3: Captured Operational Blocker');
-    lines.push('Acknowledge critical sync friction: Current API pipelines lack synchronized webhooks. Real-time CRM execution requires prior infrastructure correction.');
-    lines.push('');
-    lines.push('■ PROPOSED ACTION LOGIC FLOW');
-    lines.push('User Input ➔ Gateway Hard Filter ➔ Intent Router (JSON Only) ➔ Human-in-the-Loop Backup Verification.');
-    outputContent.innerText = lines.join('\n\n');
-    appendAiMessage('🚀 Boom! Your Strategic Brief has been compiled!\n\nCheck the Final Output Window on your right. You can now use the Copy or Download PDF buttons to weaponize this logic for your corporate battle tomorrow. No wasted meetings, total ownership.');
-}
-
-function updateEnergy(percentage, text) {
-    if (energyBar) energyBar.style.width = percentage + '%';
-    if (energyText) energyText.innerText = text;
-}
-
-// Event bindings with safety checks
-if (safeElementCheck()) {
-    if (sendBtn) {
-        sendBtn.addEventListener('click', function() {
-            var text = userInput.value.trim();
-            if (!text) return;
-            appendUserMessage(text);
-            userInput.value = '';
-            setTimeout(function() { handleDialogue(text); }, 600);
-        });
-    }
-
-    if (userInput) {
-        userInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') { 
-                e.preventDefault();
-                if (sendBtn) sendBtn.click();
+        function handleDialogue(input) {
+            if (step === 0) {
+         {
+             userName = input.trim() || 'User'; step = 1;appendAiMessage('Nice to meet you, ' + userName + '!\n\nLet's cut through the noise. What is your Intention today? What business pain point or product idea are we trying to refine? (e.g., "I want to automate our VIP retail customer routing")');
+                 return;
+             }
+            if (step === 1) {
+                    intention = input.trim(); activeIntent.innerText = intention;
+                    activeIntent.classList.remove('italic', 'text-slate-400'); activeIntent.classList.add('text-blue-400', 'font-medium'); step = 2;
+                    appendAiMessage('Got it. Intent locked as: "' + intention + '"\n\nNext, what persona should I adopt to test this idea? Choose your opponent:\n\n1. [The Tough Boss]\n2. [The Realistic Engineer]\n3. [The Frontline Manager]');
+                    return;
             }
-        });
-    }
+            if (step === 2) {
+                var choices = { '1': 'Tough Boss', '2': 'Realistic Engineer', '3': 'Frontline Manager' };
+                persona = choices[input.trim()] || input.trim(); activePersona.innerText = persona;
+                activePersona.classList.remove('italic', 'text-slate-400');
+                activePersona.classList.add('text-indigo-400', 'font-medium'); step = 3;
+                appendAiMessage('Understood. Acting as [' + persona + '].\n\nFinal setting: What Thinking Mode do you require?\n\n1. [Concise Mode]\n2. [Deep Dialectic Mode]');
+                return;
+            }
 
-    var copyBtn = document.getElementById('copy-btn');
-    if (copyBtn) {
-        copyBtn.addEventListener('click', function() {
-            if (step < 4) { alert('Brainstorm some more before copying output!'); return; }
-            if (!outputContent) return;
-            navigator.clipboard.writeText(outputContent.innerText).then(function() {
-                alert('Strategic Brief copied to clipboard! Ready to paste into PowerPoint or Word.');
-            }, function() {
-                alert('Copy failed. Please select and copy manually.');
+            if (step === 3) {
+                mode = input.trim() === '1' ? 'Concise' : 'Deep Dialectic'; step = 4;
+                if (persona.includes('Engineer')) {
+                appendAiMessage('⚡ [System Notification: Session Initialized]\n\nAlright ' + userName +
+                ', let's talk architecture. You want to execute: "' + intention + '".\n\nMy first question: Do we actually have clean, structured data for this? Or are we building on a mess?');} else if (persona.includes('Boss')) {
+                    appendAiMessage('⚡ [System Notification: Session Initialized]\n\nOkay ' + userName + ',
+                    let's look at the numbers. To build "' + intention + '", we are going to burn cash on API tokens.\n\nTell me: What is the exact ROI here? Be brutally honest.');
+                    } else {
+                    appendAiMessage('⚡ [System Notification: Session Initialized]\n\nLet's get real, ' +
+                        userName + '. Frontline staff hate new software. For "' + intention + '", what is the exact workflow friction we are solving?');
+                     }
+                    setTimeout(function() { triggerIdeaSuggestion('Establish hardcoded filter criteria at API gateway before routing to core model.'); }, 1500);
+                    return;
+                }
+                
+            if (step >= 4) {
+                var lowInput = input.toLowerCase();
+                if (lowInput.includes('yes') || lowInput.includes('store') || lowInput.includes('save')) {
+                if (pendingIdea) { commitPendingIdea(); return; }
+                if (pendingBlocker) { commitPendingBlocker(); return; }
+                }
+
+            if (step === 4) {
+                if (step === 4) {
+                    appendAiMessage('That's a fair point, but it feels incomplete. Should we restrict the tool access so it only outputs pure JSON, or give the model full conversational freedom?');
+                    setTimeout(function() { triggerBlockerSuggestion('CRITICAL BLOCKER: Core CRM architecture lacks synchronized webhooks.'); }, 1200);     
+                    } else if (step === 5) {
+                    step = 6; updateEnergy(50, '50% Left');
+                    appendAiMessage('Excellent choice. Type "Final" or "Generate" anytime, and I will compile our architectural logic flow inside the Final Output Window.');
+                    } else if (lowInput.includes('final') || lowInput.includes('generate')) {compileFinalOutput();
+                    } else {
+                    appendAiMessage('Understood. Let's dig deeper into that logic. How do you plan to handle liability if the system misinterprets a tier-1 customer's intent?');
+            }
+            }
+            }
+
+            function triggerIdeaSuggestion(ideaText) {
+                pendingIdea = ideaText;
+                var div = document.createElement('div');
+                div.className = 'bg-blue-950/40 border border-blue-800/60 rounded-xl p-3 mt-2 text-xs space-y-2';
+                div.innerHTML = ' [AI Insight Extraction] Store this concept into your Idea Storage Box?"' + ideaText + '"Yes, Store ItDiscard';
+                chatHistory.appendChild(div);
+                document.getElementById('store-idea-btn').onclick = function() { commitPendingIdea(); };
+                document.getElementById('discard-idea-btn').onclick = function() { pendingIdea = '';
+                appendAiMessage('Discarded. Let's keep refining.'); };
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            }
+
+                function commitPendingIdea() {
+                    if (!pendingIdea) return;
+                    if (ideaBoxContent.innerText.includes('No approved ideas')) { ideaBoxContent.innerHTML = ''; }
+                    var item = document.createElement('div');
+                    item.className = 'bg-slate-950 border border-slate-800 rounded-xl p-3 flex justify-between items-start text-xs text-slate-200 shadow-inner';
+                    item.innerHTML = '';
+                    item.querySelector('span').innerText = pendingIdea;
+                    ideaBoxContent.appendChild(item); pendingIdea = '';
+                    appendAiMessage('🔒 Concept successfully locked into your Idea Storage Box.');
+            }
+
+                function triggerBlockerSuggestion(blockerText) {
+                    pendingBlocker = blockerText;
+                    var div = document.createElement('div');
+                    div.className = 'bg-amber-950/40 border border-amber-800/60 rounded-xl p-3 mt-2 text-xs space-y-2';
+                    div.innerHTML = ' [Friction Detected] Shall we anchor this Blocker into your Question Box?"' + blockerText + '"Yes, Capture BlockerIgnore';
+                    chatHistory.appendChild(div);
+                    document.getElementById('store-blocker-btn').onclick = function() {
+                        commitPendingBlocker(); };
+                    document.getElementById('discard-blocker-btn').onclick = function() { pendingBlocker = ''; appendAiMessage('Understood. Overriding friction node.'); };
+                    chatHistory.scrollTop = chatHistory.scrollHeight;
+            }
+
+                function commitPendingBlocker() {
+                    if (!pendingBlocker) return;
+                    if (blockerBoxContent.innerText.includes('No captured blockers')) {
+                        blockerBoxContent.innerHTML = ''; }
+                    var item = document.createElement('div');
+                    item.className = 'bg-slate-950 border border-slate-800 rounded-xl p-3 flex justify-between items-start text-xs text-slate-200 shadow-inner';
+                    item.innerHTML = '';
+                    item.querySelector('span').innerText = pendingBlocker;
+                    blockerBoxContent.appendChild(item); pendingBlocker = '';
+                    appendAiMessage('⚠️ Friction node safely anchored inside your Question & Blocker Box.');
+             }
+
+                function compileFinalOutput() {
+                    outputContent.innerHTML = '' +
+                        '// PRE-MEETING STRATEGIC BRIEF GENERATED' +
+                        '[PROJECT INTENT] ' + intention + '' +
+                        '[AI PERSONA REVIWER] ' + persona + ' (' + mode + ' Mode)' +
+                        '■ EXECUTIVE PRESENTATION BRIEF' +
+                        'Deploy structured AI filtering to streamline "' + intention + '" without expanding human headcount costs.' +
+                        '';
+                        appendAiMessage('🚀 Boom! Your Strategic Brief has been compiled!\n\nCheck the Final Output Window on your right.');
+            }
+
+                function updateEnergy(percentage, text) { energyBar.style.width = percentage + '%';
+                          energyText.innerText = text; }
+
+                sendBtn.addEventListener('click', function() {
+                var text = userInput.value.trim(); if (!text) return;
+                appendUserMessage(text); userInput.value = '';
+                setTimeout(function() { handleDialogue(text); }, 600);
             });
-        });
-    }
 
-    var downloadBtn = document.getElementById('download-btn');
-    if (downloadBtn) {
-        downloadBtn.addEventListener('click', function() {
-            if (step < 4) { alert('Nothing to download yet. Finish the session first!'); return; }
-            alert('Downloading Strategic_Brief_Report.pdf...\n\n(PoC Feature Mockup: Stamped Disclaimer included at page footer.)');
-        });
-    }
+                userInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') { sendBtn.click(); } });
 
-    window.onload = function() {
-        appendAiMessage('Hello! I am your AI Research Partner. I am here to help filter your thoughts, handle friction, and prepare your logic for high-stakes meetings.\n\nBefore we begin, how should I address you? Please type your name below.');
-    };
-} else {
-    console.warn('Initialization aborted: required DOM elements missing.');
-}
+                document.getElementById('copy-btn').addEventListener('click', function() {
+                    if (step < 4) { alert('Brainstorm some more before copying!'); return; }
+                    navigator.clipboard.writeText(outputContent.innerText); alert('Copied to clipboard!');});
+
+                document.getElementById('download-btn').addEventListener('click', function() {
+                    if (step < 4) { alert('Nothing to download yet.'); return; }
+                    alert('Downloading Strategic_Brief_Report.pdf... (Stamped Disclaimer included at page footer.)');
+                    });
+
+                window.onload = function() {
+                    appendAiMessage('Hello! I am your AI Research Partner. I am here to help filter your thoughts, handle friction, and prepare your logic for high-stakes meetings.\n\nBefore we begin, how should I address you? Please type your name below.');
+                    };
+
+                
+                    
+                        
+                    
+                
+                
