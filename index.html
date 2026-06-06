@@ -6,11 +6,13 @@
     <title>Mind Filter AI - Thought Synthesis Platform</title>
     <!-- Tailwind CSS for sleek UI styling -->
     <script src="https://tailwindcss.com"></script>
+    <!-- FontAwesome for visual anchors/icons -->
+    <link rel="stylesheet" href="https://cloudflare.com">
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans h-screen flex flex-col overflow-hidden">
 
     <!-- TOP NAVIGATION BAR -->
-    <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center">
+    <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center z-10">
         <div class="flex items-center space-x-3">
             <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">🧠 Mind Filter AI</span>
             <span class="text-xs bg-slate-800 border border-slate-700 text-slate-400 px-2 py-0.5 rounded">Beta PoC</span>
@@ -18,12 +20,12 @@
         <!-- GLOBAL ENERGY BAR -->
         <div class="flex items-center space-x-4">
             <div class="text-right">
-                <p class="text-xs text-slate-400">Global Free Thinking Power</p>
+                <p class="text-[11px] text-slate-400">Global Free Thinking Power</p>
                 <div class="w-48 bg-slate-800 h-2 rounded-full mt-1 overflow-hidden border border-slate-700">
-                    <div class="bg-gradient-to-r from-blue-500 to-indigo-500 h-full w-[85%]"></div>
+                    <div id="energy-bar" class="bg-gradient-to-r from-blue-500 to-indigo-500 h-full w-[85%] transition-all duration-500"></div>
                 </div>
             </div>
-            <span class="text-xs text-slate-300 font-mono bg-slate-800 px-2 py-1 rounded border border-slate-700">85% Left</span>
+            <span id="energy-text" class="text-xs text-slate-300 font-mono bg-slate-800 px-2 py-1 rounded border border-slate-700">85% Left</span>
         </div>
     </header>
 
@@ -34,90 +36,88 @@
         <section class="w-1/2 border-r border-slate-800 flex flex-col bg-slate-950">
             <!-- Session Status Headers -->
             <div class="p-4 bg-slate-900/50 border-b border-slate-800 flex space-x-2">
-                <div class="bg-slate-800 border border-slate-700 rounded p-2 text-xs flex-1">
-                    <span class="text-slate-400 block font-semibold uppercase tracking-wider text-[10px]">Active Intention</span>
-                    <span id="active-intent" class="text-slate-200 italic">Waiting for input...</span>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 flex-1">
+                    <span class="text-slate-500 block font-bold uppercase tracking-wider text-[9px] mb-0.5"><i class="fa-solid fa-bullseye text-blue-400 mr-1"></i>Active Intention</span>
+                    <span id="active-intent" class="text-xs text-slate-400 italic">Awaiting definition...</span>
                 </div>
-                <div class="bg-slate-800 border border-slate-700 rounded p-2 text-xs flex-1">
-                    <span class="text-slate-400 block font-semibold uppercase tracking-wider text-[10px]">AI Persona</span>
-                    <span id="active-persona" class="text-slate-200">Not selected</span>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 flex-1">
+                    <span class="text-slate-500 block font-bold uppercase tracking-wider text-[9px] mb-0.5"><i class="fa-solid fa-user-ninja text-indigo-400 mr-1"></i>AI Persona</span>
+                    <span id="active-persona" class="text-xs text-slate-400 italic">Not selected</span>
                 </div>
             </div>
 
             <!-- Chat History Area -->
             <div class="flex-1 overflow-y-auto p-6 space-y-4" id="chat-history">
-                <!-- AI Welcome Message -->
-                <div class="flex items-start space-x-3 max-w-[85%]">
-                    <div class="bg-blue-600/20 text-blue-400 p-2 rounded-lg font-bold text-sm border border-blue-500/30">AI</div>
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-none p-4 shadow-sm">
-                        <p class="text-sm leading-relaxed text-slate-200">
-                            Hello! I am your AI Research Partner. I am here to help filter your thoughts, handle friction, and prepare your logic for high-stakes meetings. 
-                            <br/><br/>
-                            Before we begin, <span class="text-blue-400 font-medium">how should I address you?</span> Please type your name below.
-                        </p>
-                    </div>
-                </div>
+                <!-- Messages will be injected here dynamically via JS -->
             </div>
 
             <!-- Input Box Area -->
             <div class="p-4 bg-slate-900 border-t border-slate-800">
                 <div class="flex items-center space-x-2">
                     <input type="text" id="user-input" placeholder="Type your response here..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition text-slate-100 placeholder-slate-500" />
-                    <button id="send-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm px-5 py-3 rounded-xl transition shadow-md shadow-blue-900/20">
-                        Send
+                    <button id="send-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm px-5 py-3 rounded-xl transition shadow-md shadow-blue-900/20 flex items-center space-x-2">
+                        <span>Send</span> <i class="fa-solid fa-paper-plane text-xs"></i>
                     </button>
                 </div>
             </div>
         </section>
 
         <!-- RIGHT COLUMN: THE EXTRACTION BOXES & FINAL OUTPUT -->
-        <section class="w-1/2 flex flex-col bg-slate-900/30 overflow-y-auto p-6 space-y-6">
+        <section class="w-1/2 flex flex-col bg-slate-900/10 overflow-y-auto p-6 space-y-6">
             
             <!-- BOX A: IDEA STORAGE BOX -->
-            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl transition-all duration-300">
                 <div class="flex justify-between items-center mb-3">
-                    <h2 class="text-sm font-bold tracking-wide uppercase text-blue-400 flex items-center space-x-2">
+                    <h2 class="text-xs font-bold tracking-wide uppercase text-blue-400 flex items-center space-x-2">
                         <span>📦</span> <span>Idea Storage Box</span>
                     </h2>
-                    <span class="text-[10px] bg-blue-950 text-blue-400 px-2 py-0.5 rounded border border-blue-900/50">Human Approved</span>
+                    <span class="text-[9px] bg-blue-950 text-blue-400 px-2 py-0.5 rounded border border-blue-900/50 uppercase tracking-wider font-semibold">Human Approved</span>
                 </div>
-                <div class="space-y-2 text-sm text-slate-400 italic" id="idea-box-content">
+                <div class="text-sm text-slate-500 italic space-y-3" id="idea-box-content">
                     No approved ideas stored yet. Engage in dialogue to extract structured concepts.
                 </div>
             </div>
 
             <!-- BOX B: QUESTION & BLOCKER BOX -->
-            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl transition-all duration-300">
                 <div class="flex justify-between items-center mb-3">
-                    <h2 class="text-sm font-bold tracking-wide uppercase text-amber-400 flex items-center space-x-2">
+                    <h2 class="text-xs font-bold tracking-wide uppercase text-amber-400 flex items-center space-x-2">
                         <span>❓</span> <span>Question & Blocker Box</span>
                     </h2>
-                    <span class="text-[10px] bg-amber-950 text-amber-400 px-2 py-0.5 rounded border border-amber-900/50">Friction Captured</span>
+                    <span class="text-[9px] bg-amber-950 text-amber-400 px-2 py-0.5 rounded border border-amber-900/50 uppercase tracking-wider font-semibold">Friction Captured</span>
                 </div>
-                <div class="space-y-2 text-sm text-slate-400 italic" id="blocker-box-content">
+                <div class="text-sm text-slate-500 italic space-y-3" id="blocker-box-content">
                     No captured blockers yet. When thoughts stagnate, blockers will gracefully anchor here.
                 </div>
             </div>
 
             <!-- BOX C: FINAL OUTPUT WINDOW -->
-            <div class="flex-1 bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col min-h-[300px]">
+            <div class="flex-1 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col min-h-[350px]">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-sm font-bold tracking-wide uppercase text-indigo-400 flex items-center space-x-2">
+                    <h2 class="text-xs font-bold tracking-wide uppercase text-indigo-400 flex items-center space-x-2">
                         <span>🚀</span> <span>Final Output Window</span>
                     </h2>
                     <!-- Action Buttons -->
                     <div class="flex space-x-2">
-                        <button class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition">Copy</button>
-                        <button class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition">Download PDF</button>
+                        <button id="copy-btn" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center space-x-1">
+                            <i class="fa-regular fa-copy"></i> <span>Copy</span>
+                        </button>
+                        <button id="download-btn" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center space-x-1">
+                            <i class="fa-regular fa-file-pdf"></i> <span>Download PDF</span>
+                        </button>
                     </div>
                 </div>
-                <div class="flex-1 flex items-center justify-center border border-dashed border-slate-800 rounded-xl p-4 text-center text-sm text-slate-500 italic" id="output-content">
-                    Final synthesis, markdown slideshows, or Mermaid logic diagrams will generate here upon your strategic command.
+                <div class="flex-1 flex flex-col justify-center items-center border border-dashed border-slate-800 rounded-xl p-6 text-center text-sm text-slate-500 italic bg-slate-950/40" id="output-content">
+                    <i class="fa-solid fa-wand-magic-sparkles text-2xl text-slate-700 mb-2"></i>
+                    <p>Final synthesis, markdown slideshows, or Mermaid logic diagrams will generate here upon your strategic command.</p>
                 </div>
                 
                 <!-- CRITICAL STAMPED DISCLAIMER -->
-                <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-500 leading-normal">
-                    <span class="text-slate-400 font-semibold">Disclaimer:</span> This AI is your dialectic brainstorming partner, not a flawless oracle. Models can hallucinate. You are the sole reviewer, owner, and driving mind of all strategic decisions.
+                <div class="mt-4 pt-3 border-t border-slate-800 text-[10px] text-slate-500 leading-normal flex items-start space-x-2">
+                    <i class="fa-solid fa-shield-halved text-slate-600 mt-0.5 text-xs"></i>
+                    <div>
+                        <span class="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Disclaimer:</span> This AI is your dialectic brainstorming partner, not a flawless oracle. Models can hallucinate. You are the sole reviewer, owner, and driving mind of all strategic decisions.
+                    </div>
                 </div>
             </div>
 
@@ -125,9 +125,37 @@
     </main>
 
     <!-- FOOTER -->
-    <footer class="bg-slate-950 border-t border-slate-900 px-6 py-3 text-center text-xs text-slate-600">
-        Created by <span class="text-slate-400 font-medium">You</span> & Developed in Collaboration with an <span class="text-slate-500 italic">AI Research Partner</span>. Built on human insight, polished through dialectic thinking.
+    <footer class="bg-slate-950 border-t border-slate-900 px-6 py-3 text-center text-xs text-slate-600 tracking-wide">
+        Created by <span class="text-slate-400 font-semibold">You</span> & Developed in Collaboration with an <span class="text-slate-400 italic font-medium">AI Research Partner</span>. Built on human insight, polished through dialectic thinking.
     </footer>
 
-</body>
-</html>
+    <!-- CORE SIMULATION JAVASCRIPT ENGINE (INJECTING THE SOUL) -->
+    <script>
+        // State variables
+        let step = 0; 
+        let userName = '';
+        let intention = '';
+        let persona = '';
+        let mode = '';
+
+        // Temporary placeholders for approval mechanics
+        let pendingIdea = '';
+        let pendingBlocker = '';
+
+        // DOM Elements
+        const chatHistory = document.getElementById('chat-history');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const activeIntent = document.getElementById('active-intent');
+        const activePersona = document.getElementById('active-persona');
+        const ideaBoxContent = document.getElementById('idea-box-content');
+        const blockerBoxContent = document.getElementById('blocker-box-content');
+        const outputContent = document.getElementById('output-content');
+        const energyBar = document.getElementById('energy-bar');
+        const energyText = document.getElementById('energy-text');
+
+        // Helper: Inject AI message into view
+        function appendAiMessage(text) {
+            const msgHtml = `
+
+AI${text}`;chatHistory.insertAdjacentHTML('beforeend', msgHtml);chatHistory.scrollTop = chatHistory.scrollHeight;}// Helper: Inject User message into viewfunction appendUserMessage(text) {const msgHtml = <div class="flex items-start space-x-3 max-w-[85%] ml-auto justify-end animate-fade-in"> <div class="bg-slate-800 border border-slate-700 rounded-2xl rounded-tr-none p-4 shadow-md text-slate-200 text-sm leading-relaxed">${text}</div> <div class="bg-slate-700 text-slate-200 p-2 rounded-xl font-bold text-xs border border-slate-600 shadow-sm shadow-slate-500/5">ME</div> </div>;chatHistory.insertAdjacentHTML('beforeend', msgHtml);chatHistory.scrollTop = chatHistory.scrollHeight;}// Simulate AI Brainstorming Logic Flow Responsesfunction handleDialogue(input) {// Step 0: Name Onboardingif (step === 0) {userName = input.trim() || 'User';step = 1;appendAiMessage(Nice to meet you, **${userName}**!\n\nLet's cut through the corporate noise. **What is your Intention today?** What business pain point or product idea are we trying to refine? (e.g., "I want to automate our VIP retail customer routing"));return;}// Step 1: Intention Captureif (step === 1) {intention = input.trim();activeIntent.textContent = intention;activeIntent.classList.remove('italic', 'text-slate-400');activeIntent.classList.add('text-blue-400', 'font-medium');step = 2;appendAiMessage(Got it. Intent locked as: *"${intention}"*\n\nNext, **what persona should I adopt to test this idea?** Choose your opponent:\n\n1. **[The Tough Boss]** (Will grill you relentlessly on ROI and business value)\n2. **[The Realistic Engineer]** (Will challenge your data infrastructure and scalability)\n3. **[The Frontline Manager]** (Will test how this impacts real daily operations));return;}// Step 2: Persona Choiceif (step === 2) {const choices = { '1': 'Tough Boss', '2': 'Realistic Engineer', '3': 'Frontline Manager' };persona = choices[input.trim()] || input.trim();activePersona.textContent = persona;activePersona.classList.remove('italic', 'text-slate-400');activePersona.classList.add('text-indigo-400', 'font-medium');step = 3;appendAiMessage(Understood. I am now acting as your **[${persona}]**.\n\nFinal setting: What **Thinking Mode** do you require?\n\n1. **[Concise Mode]** (Short answers, high efficiency, lets you speak more)\n2. **[Deep Dialectic Mode]** (Deep critical analysis, complex questioning, treats you like an executive));return;}// Step 3: Mode Choice & First Strikeif (step === 3) {mode = input.trim() === '1' ? 'Concise' : 'Deep Dialectic';step = 4; // Shift to actual brainstorming phase// Fire the first strategic probing question based on personaif (persona.includes('Engineer')) {appendAiMessage(⚡ **[System Notification: Session Initialized in ${mode} Mode]**\n\nAlright ${userName}, let's talk architecture. You want to execute: *"${intention}"*. \n\nMy first question to you: **Do we actually have clean, structured data for this?** If we feed dirty CRM logs or raw PDFs into an LLM right now, it will throw a wall of hallucinations. Do you have an established data pipeline, or are we building on a mess?);} else if (persona.includes('Boss')) {appendAiMessage(⚡ **[System Notification: Session Initialized in ${mode} Mode]**\n\nOkay ${userName}, let's look at the numbers. To build *"${intention}"*, we are going to burn cash on API tokens and engineering hours. \n\nTell me: **What is the exact ROI here?** Are we trying to cut headcounts, speed up conversion rates, or is this just a vanity project to show off to the board? Be brutally honest.);} else {appendAiMessage(⚡ **[System Notification: Session Initialized in ${mode} Mode]**\n\nLet's get real, ${userName}. Frontline staff hate new software. For *"${intention}"*, if this AI takes an extra 3 steps to use, the team will sabotage it or bypass it completely. \n\nTell me: **How exactly does a retail rep use this in their busiest hour?** What is the exact workflow friction we are solving?);}// Simulate an Idea Extraction recommendation right off the bat to show off the UI feature!setTimeout(() => {triggerIdeaSuggestion("Establish hardcoded filter criteria at API gateway before routing to core model.");}, 1500);return;}// Step 4+: Active Dialectic Brainstorming Loop (The Core Logic)if (step >= 4) {// Handle the user's natural language approval commands for Boxesif (input.toLowerCase().includes('yes') || input.toLowerCase().includes('store') || input.toLowerCase().includes('save') || input.toLowerCase().includes('放')) {if (pendingIdea) {commitPendingIdea();return;}if (pendingBlocker) {commitPendingBlocker();return;}}// Standard brainstorming simulation stepsif (step === 4) {step = 5;updateEnergy(70, "70% Left");appendAiMessage(That's a fair point, but it feels incomplete. If we don't lock this into a rigid **Finite State Machine (FSM)** external code layer, the AI prompt will drift during edge cases.\n\nShould we restrict the tool access so it only outputs pure JSON, or do you want to give the model full conversational freedom?);// Trigger a Blocker capture to demonstrate your brilliant 10th-sentence mechanic!setTimeout(() => {triggerBlockerSuggestion("CRITICAL BLOCKER: Core CRM architecture lacks synchronized webhooks. Real-time routing currently impossible.");}, 1200);} else if (step === 5) {step = 6;updateEnergy(50, "50% Left");appendAiMessage(Excellent choice. Locking it down via Hard Code protects the brand image. \n\nI think we have enough strategic weight now. Type **"Final"** or **"Generate"** anytime, and I will compile our architectural logic flow and defense brief inside the Final Output Window.);} else if (input.toLowerCase().includes('final') || input.toLowerCase().includes('generate') || input.toLowerCase().includes('做')) {compileFinalOutput();} else {appendAiMessage(Understood. Let's dig deeper into that logic. How do you plan to handle liability if the system misinterprets a tier-1 customer's intent?);}}}// App Feature: Propose storing an Idea (AI Listens, human approves)function triggerIdeaSuggestion(ideaText) {pendingIdea = ideaText;const promptHtml = <div class="bg-blue-950/40 border border-blue-800/60 rounded-xl p-3 mt-2 text-xs space-y-2 animate-fade-in"> <p class="text-blue-300 font-medium"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> [AI Insight Extraction] Would you like to store this concept into your Idea Storage Box?</p> <p class="text-slate-300 italic">"${ideaText}"</p> <div class="flex space-x-2 pt-1"> <button onclick="commitPendingIdea()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded font-medium transition">Yes, Store It</button> <button onclick="rejectPendingIdea()" class="text-slate-500 hover:text-slate-400 px-2 py-1 transition">Discard</button> </div> </div>;chatHistory.insertAdjacentHTML('beforeend', promptHtml);chatHistory.scrollTop = chatHistory.scrollHeight;}function commitPendingIdea() {if (!pendingIdea) return;if (ideaBoxContent.innerHTML.includes('No approved ideas')) {ideaBoxContent.innerHTML = '';}ideaBoxContent.insertAdjacentHTML('beforeend', <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex justify-between items-start text-xs text-slate-200 font-sans shadow-inner animate-scale-up"> <p class="leading-relaxed"><i class="fa-solid fa-check text-blue-500 mr-2"></i>${pendingIdea}</p> <button class="text-slate-600 hover:text-blue-400 ml-2 transition"><i class="fa-solid fa-share-nodes"></i></button> </div>);pendingIdea = '';appendAiMessage("🔒 Concept successfully locked into your Idea Storage Box.");}function rejectPendingIdea() {pendingIdea = '';appendAiMessage("Discarded. Let's keep refining.");}// App Feature: Propose capturing a Blocker (Your brilliant 10th-sentence safety net)function triggerBlockerSuggestion(blockerText) {pendingBlocker = blockerText;const promptHtml = <div class="bg-amber-950/40 border border-amber-800/60 rounded-xl p-3 mt-2 text-xs space-y-2 animate-fade-in"> <p class="text-amber-400 font-medium"><i class="fa-solid fa-triangle-exclamation mr-1"></i> [Friction Detected] You seem to be hitting a wall here. Shall we anchor this Blocker into your Question Box?</p> <p class="text-slate-300 italic">"${blockerText}"</p> <div class="flex space-x-2 pt-1"> <button onclick="commitPendingBlocker()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1 rounded font-medium transition">Yes, Capture Blocker</button> <button onclick="rejectPendingBlocker()" class="text-slate-500 hover:text-slate-400 px-2 py-1 transition">Ignore</button> </div> </div>;chatHistory.insertAdjacentHTML('beforeend', promptHtml);chatHistory.scrollTop = chatHistory.scrollHeight;}function commitPendingBlocker() {if (!pendingBlocker) return;if (blockerBoxContent.innerHTML.includes('No captured blockers')) {blockerBoxContent.innerHTML = '';}blockerBoxContent.insertAdjacentHTML('beforeend', <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex justify-between items-start text-xs text-slate-200 font-sans shadow-inner animate-scale-up"> <p class="leading-relaxed"><i class="fa-solid fa-circle-exclamation text-amber-500 mr-2"></i>${pendingBlocker}</p> <button class="text-slate-600 hover:text-amber-400 ml-2 transition"><i class="fa-solid fa-share-nodes"></i></button> </div>);pendingBlocker = '';appendAiMessage("⚠️ Friction node safely anchored inside your Question & Blocker Box.");}function rejectPendingBlocker() {pendingBlocker = '';appendAiMessage("Understood. Overriding friction node, continuing deep dive.");}// App Feature: Final Output Compilerfunction compileFinalOutput() {outputContent.innerHTML = <div class="text-left text-xs font-mono bg-slate-950 p-4 rounded-xl border border-slate-800 h-full overflow-y-auto space-y-3 animate-fade-in"> <p class="text-indigo-400 font-bold uppercase tracking-wider text-[10px]">// PRE-MEETING STRATEGIC BRIEF GENERATED</p> <p class="text-slate-300 font-bold">[PROJECT INTENT] ${intention}</p> <p class="text-slate-400">[AI PERSONA REVIWER] ${persona} (${mode} Mode)</p> <hr class="border-slate-800" /> <p class="text-blue-400 font-bold">■ EXECUTIVE PRESENTATION BRIEF (SLIDE SCRIPTS)</p> <p class="text-slate-300"><b class="text-slate-100">Slide 1: The Core Target</b><br/>Deploy structured AI filtering to streamline "${intention}" without expanding human headcount costs.</p> <p class="text-slate-300"><b class="text-slate-100">Slide 2: Architectural Defense Line</b><br/>Implement strict API Token gateway guardrails. Force JSON output structures to block model hallucination and protect Premier Retail brand image.</p> <p class="text-slate-300"><b class="text-slate-100">Slide 3: Captured Operational Blocker</b><br/>Acknowledge critical sync friction: Current API pipelines lack synchronized webhooks. Real-time CRM execution requires prior infrastructure correction.</p> <hr class="border-slate-800" /> <p class="text-emerald-400 font-bold">■ PROPOSED ACTION LOGIC FLOW</p> <p class="text-slate-400">User Input ➔ Gateway Hard Filter ➔ Intent Router (JSON Only) ➔ Human-in-the-Loop Backup Verification.</p> </div>;appendAiMessage("🚀 Boom! Your Strategic Brief has been compiled!\n\nCheck the Final Output Window on your right. You can now use the Copy or Download PDF buttons to weaponize this logic for your corporate battle tomorrow. No wasted meetings, total ownership.");}// Helper: Manage global budget barfunction updateEnergy(percentage, text) {energyBar.style.width = ${percentage}%;energyText.textContent = text;}// Event Listeners for Core EnginesendBtn.addEventListener('click', () => {const text = userInput.value.trim();if (!text) return;appendUserMessage(text);userInput.value = '';setTimeout(() => handleDialogue(text), 600);});userInput.addEventListener('keypress', (e) => {if (e.key === 'Enter') {sendBtn.click();}});// Copy button capabilitydocument.getElementById('copy-btn').addEventListener('click', () => {if (step < 4) {alert("Brainstorm some more before copying output!");return;}navigator.clipboard.writeText(outputContent.innerText);alert("Strategic Brief copied to clipboard! Ready to paste into PowerPoint or Word.");});// PDF Download mockup capabilitydocument.getElementById('download-btn').addEventListener('click', () => {if (step < 4) {alert("Nothing to download yet. Finish the session first!");return;}alert("Downloading Strategic_Brief_Report.pdf...\n\n(PoC Feature Mockup: Stamped Disclaimer included at page footer.)");});// Initialize First Greeting on screen loadwindow.onload = () => {appendAiMessage("Hello! I am your AI Research Partner. I am here to help filter your thoughts, handle friction, and prepare your logic for high-stakes meetings.\n\nBefore we begin, how should I address you? Please type your name below.");};@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }@keyframes scaleUp { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }.animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }.animate-scale-up { animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
