@@ -128,80 +128,14 @@
         Created by <span class="text-slate-400 font-semibold">MSK</span> & Developed in Collaboration with an <span class="text-slate-400 italic font-medium">AI Research Partner</span>. Built on human insight, polished through dialectic thinking.
     </footer>
 
-    <!-- CORE SIMULATION JAVASCRIPT ENGINE -->
-    <script>
-        let step = 0; 
-        let userName = '';
-        let intention = '';
-        let persona = '';
-        let mode = '';
-        let pendingIdea = '';
-        let pendingBlocker = '';
+    <!-- INJECTING THE SOUL FROM SEPARATE SCRIPT -->
+    <script src="script.js"></script>
 
-        const chatHistory = document.getElementById('chat-history');
-        const userInput = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
-        const activeIntent = document.getElementById('active-intent');
-        const activePersona = document.getElementById('active-persona');
-        const ideaBoxContent = document.getElementById('idea-box-content');
-        const blockerBoxContent = document.getElementById('blocker-box-content');
-        const outputContent = document.getElementById('output-content');
-        const energyBar = document.getElementById('energy-bar');
-        const energyText = document.getElementById('energy-text');
-
-        function appendAiMessage(text) {
-            const msgHtml = `
-                <div class="flex items-start space-x-3 max-w-[85%] animate-fade-in">
-                    <div class="bg-blue-600/20 text-blue-400 p-2 rounded-xl font-bold text-xs border border-blue-500/20 shadow-sm shadow-blue-500/5">AI</div>
-
-function appendUserMessage(text) {
-  var div = document.createElement('div');
-  div.className = 'flex items-start space-x-3 max-w-[85%] ml-auto justify-end animate-fade-in';
-  div.innerHTML = '' + 'ME';
-  div.querySelector('.bg-slate-800').innerText = text;
-  chatHistory.appendChild(div);
-  chatHistory.scrollTop = chatHistory.scrollHeight;
-}
-
-function handleDialogue(input) {
-  if (step === 0) {
-    userName = input.trim() || 'User';
-    step = 1;
-    appendAiMessage('Nice to meet you, ' + userName + '!\n\nLet\'s cut through the noise...');
-    return;
-  }
-  if (step === 1) {
-    intention = input.trim();
-    activeIntent.innerText = intention;
-    activeIntent.classList.remove('italic', 'text-slate-400');
-    activeIntent.classList.add('text-blue-400', 'font-medium');
-    step = 2;
-    appendAiMessage('Got it. Intent locked as: "' + intention + '"\n\nNext, what persona...');
-    return;
-  }
-  // ...（其餘邏輯同你原本嘅一樣）
-}
-
-function triggerIdeaSuggestion(ideaText) {
-  pendingIdea = ideaText;
-  var div = document.createElement('div');
-  div.className = 'bg-blue-950/40 border border-blue-800/60 rounded-xl p-3 mt-2 text-xs space-y-2 animate-fade-in';
-  div.innerHTML = ' [AI Insight Extraction] Would you like to store this concept...' + ideaText;
-  chatHistory.appendChild(div);
-  chatHistory.scrollTop = chatHistory.scrollHeight;
-}
-
-function commitPendingIdea() {
-  if (!pendingIdea) return;
-  if (ideaBoxContent.innerText.includes('No approved ideas')) { ideaBoxContent.innerHTML = ''; }
-  var item = document.createElement('div');
-  item.className = 'bg-slate-950 border border-slate-800 rounded-xl p-3 flex justify-between items-start text-xs text-slate-200 font-sans shadow-inner animate-scale-up';
-  item.innerHTML = '' + pendingIdea + '';
-  ideaBoxContent.appendChild(item);
-  pendingIdea = '';
-  appendAiMessage('🔒 Concept successfully locked into your Idea Storage Box.');
-}
-
-// ...（仲有 commitPendingBlocker、rejectPendingBlocker、compileFinalOutput、updateEnergy、event listeners、CSS animation 等等）
-
-
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes scaleUp { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .animate-scale-up { animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+    </style>
+</body>
+</html>
