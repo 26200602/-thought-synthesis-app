@@ -1,11 +1,131 @@
-<script>
-        // Finite State Machine Core Variables
-        var step = 0; var userName = ''; var intention = ''; var persona = ''; var mode = ''; var pendingIdea = ''; var pendingBlocker = '';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mind Filter AI - Thought Synthesis Platform</title>
+    <!-- Core External Infrastructures -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans h-screen flex flex-col overflow-hidden">
+
+    <!-- Top Orchestration Bar -->
+    <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center z-10">
+        <div class="flex items-center space-x-3">
+            <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">🧠 Mind Filter AI</span>
+            <span class="text-xs bg-slate-800 border border-slate-700 text-slate-400 px-2 py-0.5 rounded">Beta PoC</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div class="text-right">
+                <p class="text-[11px] text-slate-400">Global Free Thinking Power</p>
+                <div class="w-48 bg-slate-800 h-2 rounded-full mt-1 overflow-hidden border border-slate-700">
+                    <div id="energy-bar" class="bg-gradient-to-r from-blue-500 to-indigo-500 h-full w-[85%] transition-all duration-500"></div>
+                </div>
+            </div>
+            <span id="energy-text" class="text-xs text-slate-300 font-mono bg-slate-800 px-2 py-1 rounded border border-slate-700">85% Left</span>
+        </div>
+    </header>
+
+    <!-- Main Logic Workspace -->
+    <main class="flex-1 flex overflow-hidden">
         
+        <!-- Left Column: Dialectic Input Pipeline -->
+        <section class="w-1/2 border-r border-slate-800 flex flex-col bg-slate-950">
+            <div class="p-4 bg-slate-900/50 border-b border-slate-800 flex space-x-2">
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 flex-1">
+                    <span class="text-slate-500 block font-bold uppercase tracking-wider text-[9px] mb-0.5"><i class="fa-solid fa-bullseye text-blue-400 mr-1"></i>Active Intention</span>
+                    <span id="active-intent" class="text-xs text-slate-400 italic">Awaiting definition...</span>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 flex-1">
+                    <span class="text-slate-500 block font-bold uppercase tracking-wider text-[9px] mb-0.5"><i class="fa-solid fa-user-ninja text-indigo-400 mr-1"></i>AI Persona</span>
+                    <span id="active-persona" class="text-xs text-slate-400 italic">Not selected</span>
+                </div>
+            </div>
+
+            <!-- Chat Container with fallback placeholder -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-4" id="chat-history"></div>
+
+            <!-- Deterministic Input Zone -->
+            <div class="p-4 bg-slate-900 border-t border-slate-800">
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="user-input" placeholder="Type your response here..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition text-slate-100 placeholder-slate-500" />
+                    <button id="send-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm px-5 py-3 rounded-xl transition shadow-md flex items-center space-x-2">
+                        <span>Send</span> <i class="fa-solid fa-paper-plane text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Column: Sovereign Asset Boxes -->
+        <section class="w-1/2 flex flex-col bg-slate-900/10 overflow-y-auto p-6 space-y-6">
+            
+            <!-- Box 1: Idea Storage Box -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-xs font-bold tracking-wide uppercase text-blue-400 flex items-center space-x-2">
+                        <span>📦</span> <span>Idea Storage Box</span>
+                    </h2>
+                    <span class="text-[9px] bg-blue-950 text-blue-400 px-2 py-0.5 rounded border border-blue-900/50 uppercase tracking-wider font-semibold">Human Approved</span>
+                </div>
+                <div class="text-sm text-slate-400 space-y-3" id="idea-box-content">
+                    <p class="text-slate-500 italic">No approved ideas stored yet. Engage in dialogue to extract structured concepts.</p>
+                </div>
+            </div>
+
+            <!-- Box 2: Question & Blocker Box -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-xs font-bold tracking-wide uppercase text-amber-400 flex items-center space-x-2">
+                        <span>❓</span> <span>Question & Blocker Box</span>
+                    </h2>
+                    <span class="text-[9px] bg-amber-950 text-amber-400 px-2 py-0.5 rounded border border-amber-900/50 uppercase tracking-wider font-semibold">Friction Captured</span>
+                </div>
+                <div class="text-sm text-slate-400 space-y-3" id="blocker-box-content">
+                    <p class="text-slate-500 italic">No captured blockers yet. When thoughts stagnate, blockers will gracefully anchor here.</p>
+                </div>
+            </div>
+
+            <!-- Box 3: Final Output Window -->
+            <div class="flex-1 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col min-h-[350px]">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xs font-bold tracking-wide uppercase text-indigo-400 flex items-center space-x-2">
+                        <span>🚀</span> <span>Final Output Window</span>
+                    </h2>
+                    <div class="flex space-x-2">
+                        <button id="copy-btn" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center space-x-1">
+                            <i class="fa-regular fa-copy"></i> <span>Copy</span>
+                        </button>
+                        <button id="download-btn" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center space-x-1">
+                            <i class="fa-regular fa-file-pdf"></i> <span>Download PDF</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex-1 flex items-center justify-center border border-dashed border-slate-800 rounded-xl p-4 text-left text-sm font-mono text-slate-400 bg-slate-950/40 whitespace-pre-wrap overflow-y-auto" id="output-content">Final synthesis, markdown slideshows, or Mermaid logic diagrams will generate here upon your strategic command.</div>
+                
+                <div class="mt-4 pt-3 border-t border-slate-800 text-[10px] text-slate-500 leading-normal flex items-start space-x-2">
+                    <i class="fa-solid fa-shield-halved text-slate-600 mt-0.5 text-xs"></i>
+                    <div>
+                        <span class="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Disclaimer:</span> This AI is your dialectic brainstorming partner, not a flawless oracle. Models can hallucinate. You are the sole reviewer, owner, and driving mind of all strategic decisions.
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Sovereign Footer -->
+    <footer class="bg-slate-950 border-t border-slate-900 px-6 py-3 text-center text-xs text-slate-600 tracking-wide">
+        Created by <span class="text-slate-400 font-semibold">Noha</span> & Developed in Collaboration with an <span class="text-slate-400 italic font-medium">AI Research Partner</span>. Built on human insight, polished through dialectic thinking.
+    </footer>
+
+    <!-- Execution Core Script Block -->
+    <script>
+        // State Isolation Block
+        var step = 0; var userName = ''; var intention = ''; var persona = ''; var mode = ''; var pendingIdea = ''; var pendingBlocker = '';
         var chatHistory, userInput, sendBtn, activeIntent, activePersona, ideaBoxContent, blockerBoxContent, outputContent, energyBar, energyText;
 
-        // Surgical Binding: Auto-retry logic to ensure DOM is fully ready before execution
         function initializeApp() {
+            // Secure Element Mapping
             chatHistory = document.getElementById('chat-history');
             userInput = document.getElementById('user-input');
             sendBtn = document.getElementById('send-btn');
@@ -17,42 +137,37 @@
             energyBar = document.getElementById('energy-bar');
             energyText = document.getElementById('energy-text');
 
-            // Defensive check: If elements aren't ready yet, wait 100ms and retry
+            // Defensive Fallback Loop
             if (!sendBtn || !userInput || !chatHistory) {
-                setTimeout(initializeApp, 100);
+                setTimeout(initializeApp, 50);
                 return;
             }
 
-            // Once fully ready, unblock pointer events and attach listeners
-            sendBtn.style.pointerEvents = 'auto';
-            sendBtn.style.opacity = '1';
-
-            // Attach event triggers securely
+            // Binding Core Listeners
             sendBtn.onclick = function() {
                 var text = userInput.value.trim(); 
                 if (!text) return;
                 appendUserMessage(text); 
                 userInput.value = '';
-                setTimeout(function() { handleDialogue(text); }, 400);
+                setTimeout(function() { handleDialogue(text); }, 300);
             };
 
             userInput.onkeypress = function(e) { 
                 if (e.key === 'Enter') { sendBtn.click(); } 
             };
 
-            // Stamped Disclaimer and Action Bindings
             document.getElementById('copy-btn').onclick = function() {
                 if (step < 4) { alert('Brainstorm some more before copying!'); return; }
                 navigator.clipboard.writeText(outputContent.innerText); 
-                alert('Strategic assets copied to clipboard!');
+                alert('Strategic brief copied to clipboard!');
             };
 
             document.getElementById('download-btn').onclick = function() {
                 if (step < 4) { alert('Nothing to download yet.'); return; }
-                alert('Downloading Strategic_Brief_Report.pdf... (Stamped Disclaimer included at page footer.)');
+                alert('Downloading Strategic_Brief_Report.pdf...');
             };
 
-            // Trigger initialization message smoothly
+            // Trigger System Greeting if empty
             if (chatHistory.children.length === 0) {
                 appendAiMessage('Hello! I am your AI Research Partner. I am here to help filter your thoughts, handle friction, and prepare your logic for high-stakes meetings.\n\nBefore we begin, how should I address you? Please type your name below.');
             }
@@ -116,7 +231,7 @@
                 } else {
                     appendAiMessage("⚡ [System Notification: Session Initialized]\n\nLet's get real, " + userName + ". Frontline staff hate new software. For \"" + intention + "\", what is the exact workflow friction we are solving?");
                 }
-                setTimeout(function() { triggerIdeaSuggestion('Establish hardcoded filter criteria at API gateway before routing to core model.'); }, 1500);
+                setTimeout(function() { triggerIdeaSuggestion('Establish hardcoded filter criteria at API gateway before routing to core model.'); }, 1200);
                 return;
             }
             
@@ -133,7 +248,7 @@
                 if (step === 4) {
                     step = 5;
                     appendAiMessage("That makes complete sense for our operational layer. But as your " + persona + ", I must push further:\n\nHow do we protect user confidentiality while routing these requests? What core system vulnerabilities should we log before moving this into production?");
-                    setTimeout(function() { triggerBlockerSuggestion('CRITICAL BLOCKER: Core CRM infrastructure lacks synchronized webhooks for automated routing validation.'); }, 1200);    
+                    setTimeout(function() { triggerBlockerSuggestion('CRITICAL BLOCKER: Core CRM infrastructure lacks synchronized webhooks for automated routing validation.'); }, 1000);    
                 } else if (step === 5) {
                     step = 6; 
                     updateEnergy(50, '50% Left');
@@ -224,7 +339,8 @@
                 '    B --> C{Deterministic Guardrails}\n' +
                 '    C -->|Yes| D[Locked Asset: Storage Box]\n' +
                 '    C -->|No Friction| E[Final Architecture Sync]\n' +
-                '```';
+                '
+```';
                 
             appendAiMessage('🚀 Boom! Your Strategic Brief has been compiled!\n\nCheck the Final Output Window on your right.');
         }
@@ -236,6 +352,7 @@
             }
         }
 
-        // Run the initialization on window load
         window.onload = initializeApp;
     </script>
+</body>
+</html>
