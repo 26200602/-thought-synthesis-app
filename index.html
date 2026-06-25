@@ -12,9 +12,9 @@
 </head>
 <body>
   <h1>AI KPI Idea Generator</h1>
-  <p>輸入你嘅業務痛點，系統會隨機生成 KPI 建議，幫你啟發靈感。</p>
+  <p>Type your business pain point below. The system will generate random KPI ideas to inspire you.</p>
   
-  <textarea id="inputText" placeholder="例如：我想自動化費用報銷流程"></textarea>
+  <textarea id="inputText" placeholder="e.g., I want to automate expense reimbursement"></textarea>
   <br>
   <button onclick="generateKPI()">Generate KPI Ideas</button>
   
@@ -26,28 +26,28 @@
       const outputDiv = document.getElementById("output");
       
       if (!input) {
-        outputDiv.innerHTML = "<em>請先輸入痛點。</em>";
+        outputDiv.innerHTML = "<em>Please enter a pain point first.</em>";
         return;
       }
       
-      // KPI 建議池
+      // KPI idea pool
       const ideas = [
-        "縮短流程時間 30%",
-        "減少人工審批錯誤率至 5% 以下",
-        "提升員工滿意度至 80%",
-        "自動化覆蓋率達 70%",
-        "降低運營成本 20%",
-        "提升數據準確率至 95%",
-        "加快審批速度至 1 天內完成",
-        "提升跨部門協作效率 40%"
+        "Shorten process time by 30%",
+        "Reduce manual approval errors below 5%",
+        "Increase employee satisfaction to 80%",
+        "Achieve 70% automation coverage",
+        "Lower operating costs by 20%",
+        "Improve data accuracy to 95%",
+        "Complete approvals within 1 day",
+        "Boost cross-department collaboration efficiency by 40%"
       ];
       
-      // 隨機抽取 3 個 KPI 建議
+      // Randomly select 3 KPI ideas
       const shuffled = ideas.sort(() => 0.5 - Math.random());
       const selected = shuffled.slice(0, 3);
       
-      let result = "<strong>痛點：</strong> " + input + "<br><br>";
-      result += "<strong>建議 KPI：</strong><ul>";
+      let result = "<strong>Pain Point:</strong> " + input + "<br><br>";
+      result += "<strong>Suggested KPIs:</strong><ul>";
       selected.forEach(kpi => {
         result += "<li>" + kpi + "</li>";
       });
