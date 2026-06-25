@@ -1,340 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mind Filter AI - Thought Synthesis Platform</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body class="bg-slate-950 text-slate-100 font-sans h-screen flex flex-col overflow-hidden">
-
-    <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center z-10">
-        <div class="flex items-center space-x-3">
-            <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">🧠 Mind Filter AI</span>
-            <span class="text-xs bg-slate-800 border border-slate-700 text-slate-400 px-2 py-0.5 rounded">Beta PoC</span>
-        </div>
-        <div class="flex items-center space-x-4">
-            <div class="text-right">
-                <p class="text-[11px] text-slate-400">Global Free Thinking Power</p>
-                <div class="w-48 bg-slate-800 h-2 rounded-full mt-1 overflow-hidden border border-slate-700">
-                    <div id="energy-bar" class="bg-gradient-to-r from-blue-500 to-indigo-500 h-full w-[85%] transition-all duration-500"></div>
-                </div>
-            </div>
-            <span id="energy-text" class="text-xs text-slate-300 font-mono bg-slate-800 px-2 py-1 rounded border border-slate-700">85% Left</span>
-        </div>
-    </header>
-
-    <main class="flex-1 flex overflow-hidden">
-        <section class="w-1/2 border-r border-slate-800 flex flex-col bg-slate-950">
-            <div class="p-4 bg-slate-900/50 border-b border-slate-800 flex space-x-2">
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 flex-1">
-                    <span class="text-slate-500 block font-bold uppercase tracking-wider text-[9px] mb-0.5"><i class="fa-solid fa-bullseye text-blue-400 mr-1"></i>Active Intention</span>
-                    <span id="active-intent" class="text-xs text-slate-400 italic">Awaiting definition...</span>
-                </div>
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 flex-1">
-                    <span class="text-slate-500 block font-bold uppercase tracking-wider text-[9px] mb-0.5"><i class="fa-solid fa-user-ninja text-indigo-400 mr-1"></i>AI Persona</span>
-                    <span id="active-persona" class="text-xs text-slate-400 italic">Not selected</span>
-                </div>
-            </div>
-
-            <div class="flex-1 overflow-y-auto p-6 space-y-4" id="chat-history"></div>
-
-            <div class="p-4 bg-slate-900 border-t border-slate-800">
-                <div class="flex items-center space-x-2">
-                    <input type="text" id="user-input" placeholder="Type your response here..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition text-slate-100 placeholder-slate-500" />
-                    <button id="send-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm px-5 py-3 rounded-xl transition shadow-md flex items-center space-x-2">
-                        <span>Send</span> <i class="fa-solid fa-paper-plane text-xs"></i>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <section class="w-1/2 flex flex-col bg-slate-900/10 overflow-y-auto p-6 space-y-6">
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <div class="flex justify-between items-center mb-3">
-                    <h2 class="text-xs font-bold tracking-wide uppercase text-blue-400 flex items-center space-x-2">
-                        <span>📦</span> <span>Idea Storage Box</span>
-                    </h2>
-                    <span class="text-[9px] bg-blue-950 text-blue-400 px-2 py-0.5 rounded border border-blue-900/50 uppercase tracking-wider font-semibold">Human Approved</span>
-                </div>
-                <div class="text-sm text-slate-500 italic space-y-3" id="idea-box-content">
-                    No approved ideas stored yet. Engage in dialogue to extract structured concepts.
-                </div>
-            </div>
-
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <div class="flex justify-between items-center mb-3">
-                    <h2 class="text-xs font-bold tracking-wide uppercase text-amber-400 flex items-center space-x-2">
-                        <span>❓</span> <span>Question & Blocker Box</span>
-                    </h2>
-                    <span class="text-[9px] bg-amber-950 text-amber-400 px-2 py-0.5 rounded border border-amber-900/50 uppercase tracking-wider font-semibold">Friction Captured</span>
-                </div>
-                <div class="text-sm text-slate-500 italic space-y-3" id="blocker-box-content">
-                    No captured blockers yet. When thoughts stagnate, blockers will gracefully anchor here.
-                </div>
-            </div>
-
-            <div class="flex-1 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col min-h-[350px]">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xs font-bold tracking-wide uppercase text-indigo-400 flex items-center space-x-2">
-                        <span>🚀</span> <span>Final Output Window</span>
-                    </h2>
-                    <div class="flex space-x-2">
-                        <button id="copy-btn" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center space-x-1">
-                            <i class="fa-regular fa-copy"></i> <span>Copy</span>
-                        </button>
-                        <button id="download-btn" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center space-x-1">
-                            <i class="fa-regular fa-file-pdf"></i> <span>Download PDF</span>
-                        </button>
-                    </div>
-                </div>
-                <div class="flex-1 flex items-center justify-center border border-dashed border-slate-800 rounded-xl p-4 text-center text-sm font-mono text-slate-400 bg-slate-950/40 whitespace-pre-wrap" id="output-content">Final synthesis, markdown slideshows, or Mermaid logic diagrams will generate here upon your strategic command.</div>
-                
-                <div class="mt-4 pt-3 border-t border-slate-800 text-[10px] text-slate-500 leading-normal flex items-start space-x-2">
-                    <i class="fa-solid fa-shield-halved text-slate-600 mt-0.5 text-xs"></i>
-                    <div>
-                        <span class="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Disclaimer:</span> This AI is your dialectic brainstorming partner, not a flawless oracle. Models can hallucinate. You are the sole reviewer, owner, and driving mind of all strategic decisions.
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer class="bg-slate-950 border-t border-slate-900 px-6 py-3 text-center text-xs text-slate-600 tracking-wide">
-        Created by <span class="text-slate-400 font-semibold">MSK</span> & Developed in Collaboration with an <span class="text-slate-400 italic font-medium">AI Research Partner</span>. Built on human insight, polished through dialectic thinking.
-    </footer>
-
-    <script>
-        var step = 0; var userName = ''; var intention = ''; var persona = ''; var mode = ''; var pendingIdea = ''; var pendingBlocker = '';
-        var chatHistory = document.getElementById('chat-history');
-        var userInput = document.getElementById('user-input');
-        var sendBtn = document.getElementById('send-btn');
-        var activeIntent = document.getElementById('active-intent');
-        var activePersona = document.getElementById('active-persona');
-        var ideaBoxContent = document.getElementById('idea-box-content');
-        var blockerBoxContent = document.getElementById('blocker-box-content');
-        var outputContent = document.getElementById('output-content');
-        var energyBar = document.getElementById('energy-bar');
-        var energyText = document.getElementById('energy-text');
-
-        function appendAiMessage(text) {
-            var div = document.createElement('div');
-            div.className = 'flex items-start space-x-3 max-w-[85%] mt-3';
-            div.innerHTML = '<div class="bg-blue-600/20 text-blue-400 p-2 rounded-xl font-bold text-xs border border-blue-500/20 shadow-sm">AI</div><div class="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-none p-4 shadow-md text-slate-200 text-sm leading-relaxed whitespace-pre-wrap"></div>';
-            div.querySelectorAll('div')[1].innerText = text;
-            chatHistory.appendChild(div);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-        }
-
-        function appendUserMessage(text) {
-            var div = document.createElement('div');
-            div.className = 'flex items-start space-x-3 max-w-[85%] ml-auto justify-end mt-3';
-            div.innerHTML = '<div class="bg-slate-800 border border-slate-700 rounded-2xl rounded-tr-none p-4 shadow-md text-slate-200 text-sm leading-relaxed"></div><div class="bg-slate-700 text-slate-200 p-2 rounded-xl font-bold text-xs border border-slate-600">ME</div>';
-            div.querySelectorAll('div')[0].innerText = text;
-            chatHistory.appendChild(div);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-        }
-
-        function handleDialogue(input) {
-            var lowInput = input.toLowerCase();
-
-            if (step === 0) {
-                userName = input.trim() || 'User'; 
-                step = 1;
-                appendAiMessage("Nice to meet you, " + userName + "!\n\nLet's cut through the noise. What is your Intention today? What business pain point or product idea are we trying to refine? (e.g., \"I want to automate our VIP retail customer routing\")");
-                return;
-            }
-            if (step === 1) {
-                intention = input.trim(); 
-                activeIntent.innerText = intention;
-                activeIntent.classList.remove('italic', 'text-slate-400'); 
-                activeIntent.classList.add('text-blue-400', 'font-medium'); 
-                step = 2;
-                appendAiMessage("Got it. Intent locked as: \"" + intention + "\"\n\nNext, what persona should I adopt to test this idea? Choose your opponent:\n\n1. [The Tough Boss]\n2. [The Realistic Engineer]\n3. [The Frontline Manager]");
-                return;
-            }
-            if (step === 2) {
-                var choices = { '1': 'Tough Boss', '2': 'Realistic Engineer', '3': 'Frontline Manager' };
-                persona = choices[input.trim()] || input.trim(); 
-                activePersona.innerText = persona;
-                activePersona.classList.remove('italic', 'text-slate-400');
-                activePersona.classList.add('text-indigo-400', 'font-medium'); 
-                step = 3;
-                appendAiMessage("Understood. Acting as [" + persona + "].\n\nFinal setting: What Thinking Mode do you require?\n\n1. [Concise Mode]\n2. [Deep Dialectic Mode]");
-                return;
-            }
-            if (step === 3) {
-                mode = input.trim() === '1' ? 'Concise' : 'Deep Dialectic'; 
-                step = 4;
-                if (persona.includes('Engineer')) {
-                    appendAiMessage("⚡ [System Notification: Session Initialized]\n\nAlright " + userName + ", let's talk architecture. You want to execute: \"" + intention + "\".\n\nMy first question: Do we actually have clean, structured data for this? Or are we building on a mess?");
-                } else if (persona.includes('Boss')) {
-                    appendAiMessage("⚡ [System Notification: Session Initialized]\n\nOkay " + userName + ", let's look at the numbers. To build \"" + intention + "\", we are going to burn cash on API tokens.\n\nTell me: What is the exact ROI here? Be brutally honest.");
-                } else {
-                    appendAiMessage("⚡ [System Notification: Session Initialized]\n\nLet's get real, " + userName + ". Frontline staff hate new software. For \"" + intention + "\", what is the exact workflow friction we are solving?");
-                }
-                setTimeout(function() { triggerIdeaSuggestion('Establish hardcoded filter criteria at API gateway before routing to core model.'); }, 1500);
-                return;
-            }
-            
-            if (step >= 4) {
-                if (lowInput.includes('yes') || lowInput.includes('store') || lowInput.includes('save')) {
-                    if (pendingIdea) { commitPendingIdea(); return; }
-                    if (pendingBlocker) { commitPendingBlocker(); return; }
-                }
-                if (lowInput.includes('final') || lowInput.includes('generate')) {
-                    compileFinalOutput();
-                    return;
-                }
-
-                if (step === 4) {
-                    step = 5;
-                    appendAiMessage("That's a fair point, but it feels incomplete. Should we restrict the tool access so it only outputs pure JSON, or give the model full conversational freedom?");
-                    setTimeout(function() { triggerBlockerSuggestion('CRITICAL BLOCKER: Core CRM architecture lacks synchronized webhooks.'); }, 1200);     
-                } else if (step === 5) {
-                    step = 6; 
-                    updateEnergy(50, '50% Left');
-                    appendAiMessage("Excellent choice. Type \"Final\" or \"Generate\" anytime, and I will compile our architectural logic flow inside the Final Output Window.");
-                } else {
-                    appendAiMessage("Understood. Let's dig deeper into that logic. How do you plan to handle liability if the system misinterprets a tier-1 customer's intent?");
-                }
-            }
-        }
-
-        function triggerIdeaSuggestion(ideaText) {
-            pendingIdea = ideaText;
-            var div = document.createElement('div');
-            div.className = 'bg-blue-950/40 border border-blue-800/60 rounded-xl p-3 mt-2 text-xs space-y-2';
-            div.innerHTML = '<p class="text-blue-400 font-semibold">[AI Insight Extraction]</p><p class="text-slate-300">Store this concept into your Idea Storage Box?</p><p class="italic text-slate-400">"' + ideaText + '"</p><div class="flex space-x-2 mt-1"><button id="store-idea-btn" class="bg-blue-600 px-2 py-1 rounded text-white font-medium">Yes, Store It</button><button id="discard-idea-btn" class="bg-slate-800 px-2 py-1 rounded text-slate-400">Discard</button></div>';
-            chatHistory.appendChild(div);
-            document.getElementById('store-idea-btn').onclick = function() { commitPendingIdea(); };
-            document.getElementById('discard-idea-btn').onclick = function() { 
-                pendingIdea = '';
-                appendAiMessage("Discarded. Let's keep refining."); 
-            };
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-        }
-
-        function commitPendingIdea() {
-            if (!pendingIdea) return;
-            if (ideaBoxContent.innerText.includes('No approved ideas')) { ideaBoxContent.innerHTML = ''; }
-            var item = document.createElement('div');
-            item.className = 'bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 shadow-inner mt-2';
-            item.innerHTML = '<span></span>';
-            item.querySelector('span').innerText = pendingIdea;
-            ideaBoxContent.appendChild(item); 
-            pendingIdea = '';
-            appendAiMessage('🔒 Concept successfully locked into your Idea Storage Box.');
-        }
-
-        function triggerBlockerSuggestion(blockerText) {
-            pendingBlocker = blockerText;
-            var div = document.createElement('div');
-            div.className = 'bg-amber-950/40 border border-amber-800/60 rounded-xl p-3 mt-2 text-xs space-y-2';
-            div.innerHTML = '<p class="text-amber-400 font-semibold">[Friction Detected]</p><p class="text-slate-300">Shall we anchor this Blocker into your Question Box?</p><p class="italic text-amber-400">"' + blockerText + '"</p><div class="flex space-x-2 mt-1"><button id="store-blocker-btn" class="bg-amber-600 px-2 py-1 rounded text-white font-medium">Yes, Capture Blocker</button><button id="discard-blocker-btn" class="bg-slate-800 px-2 py-1 rounded text-slate-400">Ignore</button></div>';
-            chatHistory.appendChild(div);
-            document.getElementById('store-blocker-btn').onclick = function() { commitPendingBlocker(); };
-            document.getElementById('discard-blocker-btn').onclick = function() { 
-                pendingBlocker = ''; 
-                appendAiMessage('Understood. Overriding friction node.'); 
-            };
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-        }
-
-        function commitPendingBlocker() {
-            if (!pendingBlocker) return;
-            if (blockerBoxContent.innerText.includes('No captured blockers')) { blockerBoxContent.innerHTML = ''; }
-            var item = document.createElement('div');
-            item.className = 'bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 shadow-inner mt-2';
-            item.innerHTML = '<span></span>';
-            item.querySelector('span').innerText = pendingBlocker;
-            blockerBoxContent.appendChild(item); 
-            pendingBlocker = '';
-            appendAiMessage('⚠️ Friction node safely anchored inside your Question & Blocker Box.');
-        }
-
-        function compileFinalOutput() {
-            outputContent.classList.remove('italic', 'text-center', 'justify-center', 'items-center');
-            outputContent.classList.add('text-left', 'items-start');
-            outputContent.innerText = 
-                '// PRE-MEETING STRATEGIC BRIEF GENERATED\n\n' +
-                '[PROJECT INTENT] ' + intention + '\n' +
-                '[AI PERSONA REVIEWER] ' + persona + ' (' + mode + ' Mode)\n\n' +
-                '■ EXECUTIVE PRESENTATION BRIEF\n' +
-                'Deploy structured AI filtering to streamline "' + intention + '" without expanding human headcount costs.';
-            appendAiMessage('🚀 Boom! Your Strategic Brief has been compiled!\n\nCheck the Final Output Window on your right.');
-        }
-
-        function updateEnergy(percentage, text) { 
-            energyBar.style.width = percentage + '%';
-            energyText.innerText = text; 
-        }
-
-        sendBtn.addEventListener('click', function() {
-            var text = userInput.value.trim(); 
-            if (!text) return;
-            appendUserMessage(text); 
-            userInput.value = '';
-            setTimeout(function() { handleDialogue(text); }, 600);
-        });
-
-        userInput.addEventListener('keypress', function(e) { 
-            if (e.key === 'Enter') { sendBtn.click(); } 
-        });
-
-        document.getElementById('copy-btn').addEventListener('click', function() {
-            if (step < 4) { alert('Brainstorm some more before copying!'); return; }
-            navigator.clipboard.writeText(outputContent.innerText); 
-            alert('Copied to clipboard!');
-        });
-
-        document.getElementById('download-btn').addEventListener('click', function() {
-            if (step < 4) { alert('Nothing to download yet.'); return; }
-            alert('Downloading Strategic_Brief_Report.pdf... (Stamped Disclaimer included at page footer.)');
-        });
-
-        window.onload = function() {
-            appendAiMessage('Hello! I am your AI Research Partner. I am here to help filter your thoughts, handle friction, and prepare your logic for high-stakes meetings.\n\nBefore we begin, how should I address you? Please type your name below.');
-        };
-    </script>
-</body>
-</html> 
-
-<!DOCTYPE html>
-<html>
-<head>
   <meta charset="UTF-8">
-  <title>Thought Synthesis App</title>
+  <title>AI KPI Idea Generator</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    textarea { width: 100%; height: 120px; }
+    #output { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+    button { margin-top: 10px; padding: 8px 16px; }
+  </style>
 </head>
 <body>
-  <h1>Thought Synthesis Demo</h1>
+  <h1>AI KPI Idea Generator</h1>
+  <p>輸入你嘅業務痛點，系統會隨機生成 KPI 建議，幫你啟發靈感。</p>
   
-  <!-- 輸入框同按鈕 -->
-  <textarea id="inputText" placeholder="Type your thoughts here..."></textarea>
+  <textarea id="inputText" placeholder="例如：我想自動化費用報銷流程"></textarea>
   <br>
-  <button onclick="synthesize()">Synthesize</button>
+  <button onclick="generateKPI()">Generate KPI Ideas</button>
   
-  <!-- 輸出區 -->
   <div id="output"></div>
 
-  <!-- 👇 就係呢度加 JavaScript 👇 -->
   <script>
-    function synthesize() {
+    function generateKPI() {
       const input = document.getElementById("inputText").value.trim();
       const outputDiv = document.getElementById("output");
       
       if (!input) {
-        outputDiv.innerHTML = "<em>請先輸入文字。</em>";
+        outputDiv.innerHTML = "<em>請先輸入痛點。</em>";
         return;
       }
       
-      // 模擬邏輯：拆解 → 重組 → 輸出
-      const words = input.split(" ");
-      const reversedWords = words.reverse().join(" ");
-      const synthesized = "合成思維結果：" + reversedWords;
+      // KPI 建議池
+      const ideas = [
+        "縮短流程時間 30%",
+        "減少人工審批錯誤率至 5% 以下",
+        "提升員工滿意度至 80%",
+        "自動化覆蓋率達 70%",
+        "降低運營成本 20%",
+        "提升數據準確率至 95%",
+        "加快審批速度至 1 天內完成",
+        "提升跨部門協作效率 40%"
+      ];
       
-      outputDiv.innerHTML = synthesized;
+      // 隨機抽取 3 個 KPI 建議
+      const shuffled = ideas.sort(() => 0.5 - Math.random());
+      const selected = shuffled.slice(0, 3);
+      
+      let result = "<strong>痛點：</strong> " + input + "<br><br>";
+      result += "<strong>建議 KPI：</strong><ul>";
+      selected.forEach(kpi => {
+        result += "<li>" + kpi + "</li>";
+      });
+      result += "</ul>";
+      
+      outputDiv.innerHTML = result;
     }
   </script>
 </body>
