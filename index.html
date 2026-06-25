@@ -1,60 +1,300 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>AI KPI Idea Generator</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 40px; }
-    textarea { width: 100%; height: 120px; }
-    #output { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
-    button { margin-top: 10px; padding: 8px 16px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mind Filter AI - Thought Synthesis Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
-  <h1>AI KPI Idea Generator</h1>
-  <p>Type your business pain point below. The system will generate random KPI ideas to inspire you.</p>
-  
-  <textarea id="inputText" placeholder="e.g., I want to automate expense reimbursement"></textarea>
-  <br>
-  <button onclick="generateKPI()">Generate KPI Ideas</button>
-  
-  <div id="output"></div>
+<body class="bg-slate-950 text-slate-100 font-sans h-screen flex flex-col overflow-hidden">
 
-  <script>
-    function generateKPI() {
-      const input = document.getElementById("inputText").value.trim();
-      const outputDiv = document.getElementById("output");
-      
-      if (!input) {
-        outputDiv.innerHTML = "<em>Please enter a pain point first.</em>";
-        return;
-      }
-      
-      // KPI idea pool
-      const ideas = [
-        "Shorten process time by 30%",
-        "Reduce manual approval errors below 5%",
-        "Increase employee satisfaction to 80%",
-        "Achieve 70% automation coverage",
-        "Lower operating costs by 20%",
-        "Improve data accuracy to 95%",
-        "Complete approvals within 1 day",
-        "Boost cross-department collaboration efficiency by 40%"
-      ];
-      
-      // Randomly select 3 KPI ideas
-      const shuffled = ideas.sort(() => 0.5 - Math.random());
-      const selected = shuffled.slice(0, 3);
-      
-      let result = "<strong>Pain Point:</strong> " + input + "<br><br>";
-      result += "<strong>Suggested KPIs:</strong><ul>";
-      selected.forEach(kpi => {
-        result += "<li>" + kpi + "</li>";
-      });
-      result += "</ul>";
-      
-      outputDiv.innerHTML = result;
-    }
-  </script>
+    <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center z-10">
+        <div class="flex items-center space-x-3">
+            <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">🧠 Mind Filter AI</span>
+            <span class="text-xs bg-slate-800 border border-slate-700 text-slate-400 px-2 py-0.5 rounded">SIA Layer 2 PoC</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div class="text-right">
+                <p class="text-[11px] text-slate-400">Thought Synthesis Power</p>
+                <div class="w-48 bg-slate-800 h-2 rounded-full mt-1 overflow-hidden border border-slate-700">
+                    <div id="energy-bar" class="bg-gradient-to-r from-blue-500 to-indigo-500 h-full w-[100%] transition-all duration-500"></div>
+                </div>
+            </div>
+            <span id="energy-text" class="text-xs text-slate-300 font-mono bg-slate-800 px-2 py-1 rounded border border-slate-700">100% Ready</span>
+        </div>
+    </header>
+
+    <main class="flex-1 flex overflow-hidden">
+        
+        <section class="w-1/2 border-r border-slate-800 flex flex-col bg-slate-950">
+            <div class="p-4 bg-slate-900/50 border-b border-slate-800">
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-3">
+                    <span class="text-slate-500 block font-bold uppercase tracking-wider text-[9px] mb-0.5"><i class="fa-solid fa-bullseye text-blue-400 mr-1"></i>Active Intention Blueprint</span>
+                    <span id="active-intent" class="text-xs text-slate-400 italic">Awaiting strategic input...</span>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 space-y-4" id="chat-history"></div>
+
+            <div class="p-4 bg-slate-900 border-t border-slate-800">
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="user-input" placeholder="Type your response here..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition text-slate-100 placeholder-slate-500" />
+                    <button id="send-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm px-5 py-3 rounded-xl transition shadow-md flex items-center space-x-2">
+                        <span>Send</span> <i class="fa-solid fa-paper-plane text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="w-1/2 flex flex-col bg-slate-900/10 overflow-y-auto p-6 space-y-6">
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-xs font-bold tracking-wide uppercase text-blue-400 flex items-center space-x-2">
+                        <span>📦</span> <span>Idea & Metadata Storage Box</span>
+                    </h2>
+                    <span class="text-[9px] bg-blue-950 text-blue-400 px-2 py-0.5 rounded border border-blue-900/50 uppercase tracking-wider font-semibold">Decoupled Rules</span>
+                </div>
+                <div class="text-sm text-slate-400 space-y-3" id="idea-box-content">
+                    <p class="text-slate-500 italic">No approved architectural ideas stored yet.</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-xs font-bold tracking-wide uppercase text-amber-400 flex items-center space-x-2">
+                        <span>❓</span> <span>Legacy System Blocker Box</span>
+                    </h2>
+                    <span class="text-[9px] bg-amber-950 text-amber-400 px-2 py-0.5 rounded border border-amber-900/50 uppercase tracking-wider font-semibold">Friction Audit</span>
+                </div>
+                <div class="text-sm text-slate-400 space-y-3" id="blocker-box-content">
+                    <p class="text-slate-500 italic">No systemic blockers logged yet.</p>
+                </div>
+            </div>
+
+            <div class="flex-1 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col min-h-[350px]">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xs font-bold tracking-wide uppercase text-indigo-400 flex items-center space-x-2">
+                        <span>🚀</span> <span>C-Suite Meeting Brief & Blueprint</span>
+                    </h2>
+                    <div class="flex space-x-2">
+                        <button id="copy-btn" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center space-x-1">
+                            <i class="fa-regular fa-copy"></i> <span>Copy</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex-1 flex items-center justify-center border border-dashed border-slate-800 rounded-xl p-4 text-left text-sm font-mono text-slate-400 bg-slate-950/40 whitespace-pre-wrap overflow-y-auto" id="output-content">Final executive brief and Mermaid system architecture diagram will generate here.</div>
+                
+                <div class="mt-4 pt-3 border-t border-slate-800 text-[10px] text-slate-500 leading-normal flex items-start space-x-2">
+                    <i class="fa-solid fa-shield-halved text-slate-600 mt-0.5 text-xs"></i>
+                    <div>
+                        <span class="text-slate-400 font-bold uppercase tracking-wider text-[9px]">Architecture Guardrail:</span> This platform maps high-stakes business logic into Non-intrusive Layer 2 configurations without moving core legacy database records.
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-950 border-t border-slate-900 px-6 py-3 text-center text-xs text-slate-600 tracking-wide">
+        Created by <span class="text-slate-400 font-semibold">Noha</span> | Thought Synthesis Engine
+    </footer>
+
+    <script>
+        (function() {
+            var step = 0; var userName = ''; var intention = ''; var pendingIdea = ''; var pendingBlocker = '';
+            var chatHistory, userInput, sendBtn, activeIntent, ideaBoxContent, blockerBoxContent, outputContent, energyBar, energyText;
+
+            function initializeApp() {
+                chatHistory = document.getElementById('chat-history');
+                userInput = document.getElementById('user-input');
+                sendBtn = document.getElementById('send-btn');
+                activeIntent = document.getElementById('active-intent');
+                ideaBoxContent = document.getElementById('idea-box-content');
+                blockerBoxContent = document.getElementById('blocker-box-content');
+                outputContent = document.getElementById('output-content');
+                energyBar = document.getElementById('energy-bar');
+                energyText = document.getElementById('energy-text');
+
+                if (!sendBtn || !userInput || !chatHistory) {
+                    setTimeout(initializeApp, 50);
+                    return;
+                }
+
+                sendBtn.onclick = function() {
+                    var text = userInput.value.trim(); 
+                    if (!text) return;
+                    appendUserMessage(text); 
+                    userInput.value = '';
+                    setTimeout(function() { handleDialogue(text); }, 300);
+                };
+
+                userInput.onkeypress = function(e) { 
+                    if (e.key === 'Enter') { sendBtn.click(); } 
+                };
+
+                document.getElementById('copy-btn').onclick = function() {
+                    if (step < 3) { alert('Generate the brief before copying!'); return; }
+                    navigator.clipboard.writeText(outputContent.innerText); 
+                    alert('Strategic Brief copied!');
+                };
+
+                if (chatHistory.children.length === 0) {
+                    appendAiMessage('Hello Noha. Let\'s cut through the noise and align our architecture.\n\nBefore we begin, please confirm your name or title to stamp the blueprint.');
+                }
+            }
+
+            function appendAiMessage(text) {
+                if (!chatHistory) return;
+                var div = document.createElement('div');
+                div.className = 'flex items-start space-x-3 max-w-[85%] mt-3';
+                div.innerHTML = '<div class="bg-blue-600/20 text-blue-400 p-2 rounded-xl font-bold text-xs border border-blue-500/20 shadow-sm">AI</div><div class="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-none p-4 shadow-md text-slate-200 text-sm leading-relaxed whitespace-pre-wrap"></div>';
+                div.querySelectorAll('div')[1].innerText = text;
+                chatHistory.appendChild(div);
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            }
+
+            function appendUserMessage(text) {
+                if (!chatHistory) return;
+                var div = document.createElement('div');
+                div.className = 'flex items-start space-x-3 max-w-[85%] ml-auto justify-end mt-3';
+                div.innerHTML = '<div class="bg-slate-800 border border-slate-700 rounded-2xl rounded-tr-none p-4 shadow-md text-slate-200 text-sm leading-relaxed"></div><div class="bg-slate-700 text-slate-200 p-2 rounded-xl font-bold text-xs border border-slate-600">ME</div>';
+                div.querySelectorAll('div')[0].innerText = text;
+                chatHistory.appendChild(div);
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            }
+
+            function handleDialogue(input) {
+                var lowInput = input.toLowerCase();
+
+                if (step === 0) {
+                    userName = input.trim() || 'Executive Partner'; 
+                    step = 1;
+                    appendAiMessage("Welcome, " + userName + ".\n\nWhat is your core Intention today? Please state the high-stakes business logic or workflow we need to decouple. (e.g., \"Automating retail VIP priority routing layer 2 without moving CRM records\")");
+                    return;
+                }
+                if (step === 1) {
+                    intention = input.trim(); 
+                    if(activeIntent) {
+                        activeIntent.innerText = intention;
+                        activeIntent.classList.remove('italic', 'text-slate-400'); 
+                        activeIntent.classList.add('text-blue-400', 'font-medium'); 
+                    }
+                    step = 2;
+                    appendAiMessage("Strategic Intent locked: \"" + intention + "\"\n\nAnalyzing architecture patterns... Non-intrusive metadata filtering blueprint ready.\n\nShould we establish hardcoded filter criteria at the API Gateway layer to protect legacy islands of data?");
+                    setTimeout(function() { triggerIdeaSuggestion('Establish deterministic metatag filtering at API gateway prior to processing by LLM.'); }, 1000);
+                    return;
+                }
+                
+                if (step >= 2) {
+                    if (lowInput.includes('yes') || lowInput.includes('store') || lowInput.includes('save')) {
+                        if (pendingIdea) { commitPendingIdea(); return; }
+                        if (pendingBlocker) { commitPendingBlocker(); return; }
+                    }
+                    if (lowInput.includes('final') || lowInput.includes('generate') || lowInput.includes('brief')) {
+                        compileFinalOutput();
+                        return;
+                    }
+
+                    if (step === 2) {
+                        step = 3;
+                        appendAiMessage("Understood. Let's execute the technical friction audit.\n\nWarning: Legacy CRM records often lack synchronized Webhooks for instant real-time routing.\n\nShould we log this infrastructure risk as a critical blocker for the CIO presentation?");
+                        setTimeout(function() { triggerBlockerSuggestion('CRITICAL BLOCKER: Legacy CRM database has no synchronous webhook layer for real-time validation.'); }, 1000);    
+                    } else if (step === 3) {
+                        step = 4; 
+                        if(energyBar && energyText) {
+                            energyBar.style.width = '60%';
+                            energyText.innerText = '60% Left';
+                        }
+                        appendAiMessage("Friction map complete. We have isolated core requirements from technical constraints.\n\nType \"Final\" or \"Generate\" to compile the C-Suite Technical Briefing document and full system Mermaid flowchart.");
+                    } else {
+                        appendAiMessage("Decoupled state stable. Type \"Final\" to generate the master report.");
+                    }
+                }
+            }
+
+            function triggerIdeaSuggestion(ideaText) {
+                pendingIdea = ideaText;
+                var div = document.createElement('div');
+                div.className = 'bg-blue-950/40 border border-blue-800/60 rounded-xl p-3 mt-2 text-xs space-y-2';
+                div.innerHTML = '<p class="text-blue-400 font-semibold">[AI Insight Extraction]</p><p class="text-slate-300">Lock this decoupled rule into Storage Box?</p><p class="italic text-slate-400">"' + ideaText + '"</p><div class="flex space-x-2 mt-1"><button id="store-idea-btn" class="bg-blue-600 px-2 py-1 rounded text-white font-medium hover:bg-blue-500 transition">Yes, Store Rule</button></div>';
+                chatHistory.appendChild(div);
+                div.querySelector('#store-idea-btn').onclick = function() { commitPendingIdea(); };
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            }
+
+            function commitPendingIdea() {
+                if (!pendingIdea) return;
+                if (ideaBoxContent.innerHTML.includes('No approved architectural ideas')) { ideaBoxContent.innerHTML = ''; }
+                var item = document.createElement('div');
+                item.className = 'bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 shadow-inner mt-2';
+                item.innerText = pendingIdea;
+                ideaBoxContent.appendChild(item); 
+                pendingIdea = '';
+                appendAiMessage('🔒 Rule locked into Idea Storage Box. Proceeding...');
+                setTimeout(function() { handleDialogue('next'); }, 500);
+            }
+
+            function triggerBlockerSuggestion(blockerText) {
+                pendingBlocker = blockerText;
+                var div = document.createElement('div');
+                div.className = 'bg-amber-950/40 border border-amber-800/60 rounded-xl p-3 mt-2 text-xs space-y-2';
+                div.innerHTML = '<p class="text-amber-400 font-semibold">[System Friction Detected]</p><p class="text-slate-300">Anchor this blocker for audit defense?</p><p class="italic text-amber-400">"' + blockerText + '"</p><div class="flex space-x-2 mt-1"><button id="store-blocker-btn" class="bg-amber-600 px-2 py-1 rounded text-white font-medium hover:bg-amber-500 transition">Yes, Log Blocker</button></div>';
+                chatHistory.appendChild(div);
+                div.querySelector('#store-blocker-btn').onclick = function() { commitPendingBlocker(); };
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            }
+
+            function commitPendingBlocker() {
+                if (!pendingBlocker) return;
+                if (blockerBoxContent.innerHTML.includes('No systemic blockers logged')) { blockerBoxContent.innerHTML = ''; }
+                var item = document.createElement('div');
+                item.className = 'bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 shadow-inner mt-2';
+                item.innerText = pendingBlocker;
+                blockerBoxContent.appendChild(item); 
+                pendingBlocker = '';
+                appendAiMessage('⚠️ Friction point securely anchored in Blocker Box.');
+                setTimeout(function() { handleDialogue('next'); }, 500);
+            }
+
+            function compileFinalOutput() {
+                if(!outputContent) return;
+                outputContent.classList.remove('italic', 'text-center', 'justify-center', 'items-center');
+                outputContent.classList.add('text-left', 'items-start');
+                
+                var storedIdeas = ideaBoxContent ? ideaBoxContent.innerText.trim() : '';
+                var storedBlockers = blockerBoxContent ? blockerBoxContent.innerText.trim() : '';
+                
+                outputContent.innerText = 
+                    '# =========================================================\n' +
+                    '# STRATEGIC ARCHITECTURAL BRIEF (NON-INTRUSIVE LAYER 2)\n' +
+                    '# Prepared for C-Suite Alignment & CIO Defense\n' +
+                    '# =========================================================\n\n' +
+                    '## 1. STRATEGIC MISSION\n' +
+                    '* MISSION INTENTION: ' + intention + '\n' +
+                    '* PRINCIPLE: Non-intrusive strategic decoupling (Data stays at rest)\n\n' +
+                    '## 2. METADATA RULESET (Isolated from Legacy Core)\n' +
+                    (storedIdeas.includes('No approved') ? '* Default Gateway Mapping Layer Active.' : storedIdeas) + '\n\n' +
+                    '## 3. AUDIT DEFENSE BLOCKERS (To Negotiate with IT)\n' +
+                    (storedBlockers.includes('No systemic blockers') ? '* No critical friction nodes reported.' : storedBlockers) + '\n\n' +
+                    '## 4. SYSTEM MERMAID TOPOLOGY\n' +
+                    '```mermaid\n' +
+                    'graph TD\n' +
+                    '    User[Raw Intention Input] --> Layer2(Mind Filter Middleware)\n' +
+                    '    Layer2 -->|Extract Metatags| Gateway{Deterministic Gateway}\n' +
+                    '    Gateway -->|Enforce Guardrails| Approved[Idea Storage Box]\n' +
+                    '    Gateway -->|Expose Friction| Blocker[CRM Blocker Map]\n' +
+                    '```';
+                    
+                appendAiMessage('🚀 Master Strategic Brief compiled! Review the output window on your right.');
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initializeApp);
+            } else {
+                initializeApp();
+            }
+        })();
+    </script>
 </body>
 </html>
