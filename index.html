@@ -300,3 +300,42 @@
     </script>
 </body>
 </html> 
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Thought Synthesis App</title>
+</head>
+<body>
+  <h1>Thought Synthesis Demo</h1>
+  
+  <!-- 輸入框同按鈕 -->
+  <textarea id="inputText" placeholder="Type your thoughts here..."></textarea>
+  <br>
+  <button onclick="synthesize()">Synthesize</button>
+  
+  <!-- 輸出區 -->
+  <div id="output"></div>
+
+  <!-- 👇 就係呢度加 JavaScript 👇 -->
+  <script>
+    function synthesize() {
+      const input = document.getElementById("inputText").value.trim();
+      const outputDiv = document.getElementById("output");
+      
+      if (!input) {
+        outputDiv.innerHTML = "<em>請先輸入文字。</em>";
+        return;
+      }
+      
+      // 模擬邏輯：拆解 → 重組 → 輸出
+      const words = input.split(" ");
+      const reversedWords = words.reverse().join(" ");
+      const synthesized = "合成思維結果：" + reversedWords;
+      
+      outputDiv.innerHTML = synthesized;
+    }
+  </script>
+</body>
+</html>
